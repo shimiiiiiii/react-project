@@ -14,7 +14,7 @@ exports.register = async (req, res, next) => {
         
         let result; // insomnia test lng to
         if (req.file) {
-            result = await cloudinary.v2.uploader.upload(req.file.path, {
+             result = await cloudinary.v2.uploader.upload(req.file.path, {
                 folder: 'photos',
                 width: 150,
                 crop: "scale"
