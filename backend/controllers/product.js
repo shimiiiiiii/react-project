@@ -71,45 +71,53 @@ exports.getSingleProduct = async (req, res, next) => {
 
 // Create New Product
 exports.newProduct = async (req, res, next) => {
-    try {
-    //     let images = [];
-    //     if (typeof req.body.images === 'string') {
-    //         images.push(req.body.images);
-    //     } else {
-    //         images = req.body.images;
-    //     }
+	let images = []
+	if (typeof req.body.images === 'string') {
+		images.push(req.body.images)
+	} else {
+		images = req.body.images
+	}
 
-    //     let imagesLinks = [];
-    //     for (let i = 0; i < images.length; i++) {
-    //         const result = await cloudinary.v2.uploader.upload(images[i], {
-    //             folder: 'products',
-    //             width: 150,
-    //             crop: "scale",
-    //         });
+	let imagesLinks = [];
 
-    //         imagesLinks.push({
-    //             public_id: result.public_id,
-    //             url: result.secure_url
-    //         });
-    //     }
+	for (let i = 0; i < images.length; i++) {
+		
+		// console.log(imageDataUri)
+		try {
+			const result = await cloudinary.v2.uploader.upload(images[i], {
+				folder: 'products',
+				width: 150,
+				crop: "scale",
+			});
 
-        // req.body.images = imagesLinks;
-        // req.body.user = req.user.id;
+			imagesLinks.push({
+				public_id: result.public_id,
+				url: result.secure_url
+			})
 
-        const product = await Product.create(req.body);
+		} catch (error) {
+			console.log(error)
+		}
 
-        res.status(201).json({
-            success: true,
-            product
-        });
-    } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: 'Product not created',
-            error: error.message
-        });
-    }
-};
+	}
+
+	req.body.images = imagesLinks
+	req.body.user = req.user.id;
+
+	const product = await Product.create(req.body);
+
+	if (!product)
+		return res.status(400).json({
+			success: false,
+			message: 'Product not created'
+		})
+
+
+	return res.status(201).json({
+		success: true,
+		product
+	})
+}
 // Update Product
 exports.updateProduct = async (req, res, next) => {
     try {

@@ -17,7 +17,7 @@ const {
 
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
-router.post('/register', upload.single('photo'), register);
+router.post('/register', upload.array('photos', 10), register);
 router.post('/login', login);
 router.get('/profile', isVerified, getProfile)
 router.put('/profile/update', isVerified,  upload.single("photo"), updateProfile)

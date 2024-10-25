@@ -6,42 +6,49 @@ const cloudinary = require('cloudinary');
 // Register or Create
 exports.register = async (req, res, next) => {
     try {
-        // const result = await cloudinary.v2.uploader.upload(req.body.photo, {
-        //     folder: 'photos',
-        //     width: 150,
-        //     crop: "scale"
-        // });
-        
-        let result; // insomnia test lng to
-        if (req.file) {
-             result = await cloudinary.v2.uploader.upload(req.file.path, {
+        const { name, email, password, dateOfBirth } = req.body;
+
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({ success: false, message: 'Please upload at least one photo' });
+        }
+
+        if (dateOfBirth) {
+            req.body.dateOfBirth = new Date(dateOfBirth);
+        }
+
+        const imagesLinks = [];
+
+        for (let i = 0; i < req.files.length; i++) {
+            const result = await cloudinary.v2.uploader.upload(req.files[i].path, {
                 folder: 'photos',
                 width: 150,
-                crop: "scale"
+                crop: 'scale',
             });
-        } //end test
 
-        const { name, email, password } = req.body;
+            imagesLinks.push({
+                public_id: result.public_id,
+                url: result.secure_url
+            });
+        }
+
         const user = await User.create({
             name,
             email,
             password,
-            photo: {
-                public_id: result.public_id,
-                url: result.secure_url
-            }
+            dateOfBirth,
+            photos: imagesLinks,
         });
 
-        // Generate JWT token
         const token = user.getJwtToken();
 
         return res.status(201).json({
             success: true,
             user,
-            token
+            token,
         });
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ success: false, message: 'Server error' });
     }
 };
 

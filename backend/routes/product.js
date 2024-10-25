@@ -11,7 +11,8 @@ const {
     deleteProduct
 } = require('../controllers/product');
 
-// const { isAuthenticatedUser, authorizeRoles } = require('../middlewares/auth');
+const { getSuppliers } = require('../controllers/supplier');
+const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
 router.get('/products', getProducts);
 router.get('/product/:id', getSingleProduct);
@@ -21,7 +22,9 @@ router.get('/product/:id', getSingleProduct);
 // router.delete('/admin/product/:id', isAuthenticatedUser, authorizeRoles('admin'), deleteProduct);
 
 router.get('/admin/products', getAdminProducts);
-router.post('/admin/product/new', newProduct); 
+router.get('/suppliers', getSuppliers); 
+router.post('/admin/product/new', isVerified, upload.array('images', 10), newProduct);
+// router.post('/admin/product/new', upload.array('images'), newProduct); 
 router.put('/admin/product/:id', updateProduct); 
 router.delete('/admin/product/:id', deleteProduct);
 
