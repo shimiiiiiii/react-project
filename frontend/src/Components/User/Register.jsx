@@ -145,7 +145,7 @@ const Register = () => {
                             />
                             <div className="preview-images">
                                 {photosPreview.map((img, idx) => (
-                                    <img key={idx} src={img} alt="Photo Preview" className="img-thumbnail mt-2" />
+                                    <img key={idx} src={img} alt="Photo Preview" className="mt-3 mr-2" width="55" height="52" />
                                 ))}
                             </div>
                         </div>

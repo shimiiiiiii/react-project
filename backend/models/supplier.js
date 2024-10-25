@@ -16,7 +16,19 @@ const supplierSchema = new mongoose.Schema({
     address: {
         type: String,
         required: [true, 'Please enter their address']
-    }
+    },
+    images: [
+        {
+            public_id: {
+                type: String,
+                required: true
+            },
+            url: {
+                type: String,
+                required: true
+            },
+        }
+    ]
 });
 
 module.exports = mongoose.model('Supplier', supplierSchema);

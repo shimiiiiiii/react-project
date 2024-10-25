@@ -102,7 +102,7 @@ const NewProduct = () => {
     //     }
     // }
     const newProduct = async (formData) => {
-        setLoading(true); // Set loading to true before making the request
+        setLoading(true); 
         try {
             const config = {
                 headers: {
@@ -112,15 +112,13 @@ const NewProduct = () => {
             };
     
             const response = await axios.post(`http://localhost:4000/api/admin/product/new`, formData, config);
-            console.log(response); // Log the full response object
-    
-            const { data } = response; // Access data after ensuring the response was successful
+            const { data } = response; // access data after successful
             setLoading(false);
             setSuccess(data.success);
             setProduct(data.product);
         } catch (error) {
-            console.error(error); // Log the error object for more details
-            setLoading(false); // Ensure loading is set to false on error
+            console.error(error);
+            setLoading(false);
             setError(error.response ? error.response.data.message : error.message);
         }
     };

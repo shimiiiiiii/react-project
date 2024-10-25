@@ -102,59 +102,73 @@ exports.getProfile = async (req, res, next) => {
 
 // Update User Profile
 exports.updateProfile = async (req, res, next) => {
-    try {
-        const newUserData = {
-            name: req.body.name,
-            email: req.body.email
-        };
+//     let user = await User.findById(req.user.id);
 
-        // if (req.body.photo !== '') {
-        //     const user = await User.findById(req.user.id);
-        //     const image_id = user.photo.public_id;
+//     if (!user) {
+//         return res.status(404).json({
+//             success: false,
+//             message: 'User not found'
+//         });
+//     }
 
-        //     // Delete old photo from Cloudinary
-        //     await cloudinary.v2.uploader.destroy(image_id);
+//     const newUserData = {
+//         name: req.body.name,
+//         email: req.body.email,
+//         dateOfBirth: req.body.dateOfBirth || user.dateOfBirth // Retain old dateOfBirth if not provided
+//     };
 
-        //     // Upload new photo
-        //     const result = await cloudinary.v2.uploader.upload(req.body.photo, {
-        //         folder: 'photos',
-        //         width: 150,
-        //         crop: "scale"
-        //     });
+//     // Handle multiple file uploads for photos
+//     let images = [];
 
-        if (req.file) { // insomnia testing only
-            const user = await User.findById(req.user.id);
-            const image_id = user.photo.public_id;
+//     if (typeof req.body.photos === 'string') {
+//         images.push(req.body.photos);
+//     } else {
+//         images = req.body.photos;
+//     }
 
-            // Delete old photo from Cloudinary
-            await cloudinary.v2.uploader.destroy(image_id);
+//     // If there are images, delete old images and upload new ones
+//     if (images && images.length > 0) {
+//         // Delete old photos from Cloudinary
+//         for (let i = 0; i < user.photos.length; i++) {
+//             const result = await cloudinary.v2.uploader.destroy(user.photos[i].public_id);
+//         }
 
-            // Upload new photo to Cloudinary
-            const result = await cloudinary.v2.uploader.upload(req.file.path, { 
-                folder: 'photos',
-                width: 150,
-                crop: "scale"
-            }); //end test
+//         // Upload new photos to Cloudinary
+//         let imagesLinks = [];
+//         for (let i = 0; i < images.length; i++) {
+//             const result = await cloudinary.v2.uploader.upload(images[i], {
+//                 folder: 'photos', // Update to your desired folder structure
+//                 width: 150,
+//                 crop: "scale",
+//             });
+//             imagesLinks.push({
+//                 public_id: result.public_id,
+//                 url: result.secure_url
+//             });
+//         }
 
-            newUserData.photo = {
-                public_id: result.public_id,
-                url: result.secure_url
-            };
-        }
+//         // Update the user data with new images
+//         newUserData.photos = imagesLinks;
+//     } else {
+//         // If no new images, retain existing ones
+//         newUserData.photos = user.photos; 
+//     }
 
-        const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
-            new: true,
-            runValidators: true
-        });
+//     // Update the user in the database
+//     const updatedUser = await User.findByIdAndUpdate(req.user.id, newUserData, {
+//         new: true,
+//         runValidators: true,
+//     });
 
-        return res.status(200).json({
-            success: true,
-            user
-        });
-    } catch (err) {
-        return res.status(500).json({ error: err.message });
-    }
-};
+//     if (!updatedUser) {
+//         return res.status(401).json({ message: 'User Not Updated' });
+//     }
+
+//     return res.status(200).json({
+//         success: true,
+//         user: updatedUser // Optionally return the updated user
+//     });
+// };
 
 // Update User Password
 exports.updatePassword = async (req, res, next) => {

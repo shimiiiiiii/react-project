@@ -10,14 +10,15 @@ const {
     deleteSupplier
 } = require('../controllers/supplier');
 
-const { isVerified, authorizeRoles } = require('../middlewares/auth'); // Uncomment if using authentication middleware
+const { isVerified, authorizeRoles } = require('../middlewares/auth'); 
 
-router.get('/admin/suppliers', getSuppliers);
-router.get('/admin/supplier/:id', getSingleSupplier);
-// router.post('/admin/supplier/new', isVerified, authorizeRoles('admin'), newSupplier); // Uncomment for admin access
+router.get('/suppliers', getSuppliers);
+router.get('/supplier/:id', getSingleSupplier);
+router.post('/admin/supplier/new', isVerified, authorizeRoles('admin'), upload.array('images', 10), newSupplier); 
+router.route('/admin/supplier/:id', isVerified).put(updateSupplier).delete(deleteSupplier); 
 
-router.post('/admin/supplier/new', newSupplier); // No auth for testing
-router.put('/admin/supplier/:id', updateSupplier); // No auth for testing
-router.delete('/admin/supplier/:id', deleteSupplier); // No auth for testing
+// router.post('/admin/supplier/new', newSupplier); // No auth for testing
+// router.put('/admin/supplier/:id', updateSupplier); // No auth for testing
+// router.delete('/admin/supplier/:id', deleteSupplier); // No auth for testing
 
 module.exports = router;

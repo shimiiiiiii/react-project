@@ -1,67 +1,172 @@
 import React, { useState, useEffect } from 'react';
+import Meta from '../Layout/Meta';
+import { getToken } from '../../utils/helpers';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const NewSupplier = ({ user }) => {
-  const [name, setName] = useState('');
-  const [contactNumber, setContactNumber] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+const NewSupplier = () => {
+    const [name, setName] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [email, setEmail] = useState('');
+    const [address, setAddress] = useState('');
+    const [images, setImages] = useState([]);
+    const [imagesPreview, setImagesPreview] = useState([]);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState('');
 
-  useEffect(() => {
-    if (!user?.isVerified) {
-      setError('Access denied: Only admins can create suppliers.');
-    }
-  }, [user]);
+    const submitHandler = (e) => {
+        e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setSuccess(false);
+        const formData = new FormData();
+        formData.set('name', name);
+        formData.set('contactNumber', contactNumber);
+        formData.set('email', email);
+        formData.set('address', address);
 
-    const supplierData = {
-      name,
-      contactNumber,
-      email,
-      address,
+        images.forEach(image => {
+            formData.append('images', image);
+        });
+
+        createSupplier(formData);
     };
 
-    try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API}/admin/supplier/new`, supplierData, {
-        headers: {
-          Authorization: `Bearer ${user?.token}`, // Pass the JWT token
-        },
-      });
+    const onChange = e => {
+        const files = Array.from(e.target.files);
+        setImagesPreview([]);
+        setImages([]);
 
-      if (data.success) {
-        setSuccess(true);
-        setName('');
-        setContactNumber('');
-        setEmail('');
-        setAddress('');
-      }
-    } catch (error) {
-      setError(error.response?.data?.message || 'Failed to create supplier');
-    }
-  };
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (reader.readyState === 2) {
+                    setImagesPreview(oldArray => [...oldArray, reader.result]);
+                    setImages(oldArray => [...oldArray, reader.result]);
+                }
+            };
 
-  if (!user?.isVerified) {
-    return <p style={{ color: 'red' }}>Access denied: Only verified users can create suppliers.</p>;
-  }
+            reader.readAsDataURL(file);
+        });
+    };
 
-  return (
-    <div>
-      <h2>Create New Supplier</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Form fields for name, contact number, email, and address */}
-        <button type="submit">Create Supplier</button>
-      </form>
+    const createSupplier = async (formData) => {
+        setLoading(true);
+        try {
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            };
 
-      {success && <p>Supplier created successfully!</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-    </div>
-  );
+            const { data } = await axios.post(`http://localhost:4000/api/admin/supplier/new`, formData, config);
+            setLoading(false);
+            setSuccess(data.success);
+        } catch (error) {
+            setLoading(false);
+            setError(error.response ? error.response.data.message : error.message);
+        }
+    };
+
+    useEffect(() => {
+        if (error) {
+            toast.error(error, { position: 'bottom-right' });
+        }
+
+        if (success) {
+            toast.success('Supplier created successfully', { position: 'bottom-right' });
+        }
+    }, [error, success]);
+
+    return (
+        <>
+            <Meta title={'New Supplier'} />
+            <div className="container mt-5">
+                <form className="shadow-lg" onSubmit={submitHandler} encType="multipart/form-data">
+                    <h1 className="mb-4">New Supplier</h1>
+
+                    <div className="form-group">
+                        <label htmlFor="name_field">Name</label>
+                        <input
+                            type="text"
+                            id="name_field"
+                            className="form-control"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="contact_field">Contact Number</label>
+                        <input
+                            type="text"
+                            id="contact_field"
+                            className="form-control"
+                            value={contactNumber}
+                            onChange={(e) => setContactNumber(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="email_field">Email</label>
+                        <input
+                            type="email"
+                            id="email_field"
+                            className="form-control"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="address_field">Address</label>
+                        <textarea
+                            className="form-control"
+                            id="address_field"
+                            rows="4"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div className="form-group">
+                        <label>Images</label>
+                        <div className="custom-file">
+                            <input
+                                type="file"
+                                name="images"
+                                className="custom-file-input"
+                                id="customFile"
+                                onChange={onChange}
+                                multiple
+                            />
+                            <label className="custom-file-label" htmlFor="customFile">
+                                Choose Images
+                            </label>
+                        </div>
+
+                        {imagesPreview.map(img => (
+                            <img src={img} key={img} alt="Images Preview" className="mt-3 mr-2" width="55" height="52" />
+                        ))}
+                    </div>
+
+                    <button
+                        id="submit_button"
+                        type="submit"
+                        className="btn btn-block py-3"
+                        disabled={loading}
+                    >
+                        CREATE
+                    </button>
+                </form>
+            </div>
+        </>
+    );
 };
 
 export default NewSupplier;
