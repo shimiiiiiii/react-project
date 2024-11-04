@@ -41,6 +41,26 @@ exports.register = async (req, res, next) => {
 
         const token = user.getJwtToken();
 
+          // Generate verification token
+          const verificationToken = user.getVerificationToken();
+
+          // Save the user to persist verification token in the database
+          await user.save({ validateBeforeSave: false });
+ 
+          // Create verification URL
+          const verificationUrl = `${req.protocol}://${req.get('host')}/api/verify/${verificationToken}`; // Corrected path
+          console.log('Sent Verification Token in URL:', verificationToken); // Should match 'Received Verification Token' in the next step
+          console.log('Verification URL:', verificationUrl); // Add this line for debugging
+          const message = `Please verify your email by clicking on the following link: \n\n${verificationUrl}\n\nIf you did not register, please ignore this email.`;
+  
+       // Send verification email
+       await sendEmail({
+         email: user.email,
+         subject: 'Email Verification',
+         message: 'Please verify your email by clicking on the link below:',
+         url: verificationUrl
+     });
+ 
         return res.status(201).json({
             success: true,
             user,
@@ -101,7 +121,7 @@ exports.getProfile = async (req, res, next) => {
 };
 
 // Update User Profile
-exports.updateProfile = async (req, res, next) => {
+// exports.updateProfile = async (req, res, next) => {
 //     let user = await User.findById(req.user.id);
 
 //     if (!user) {
@@ -322,5 +342,36 @@ exports.updateUser = async (req, res, next) => {
         });
     } catch (err) {
         return res.status(500).json({ error: err.message });
+    }
+};
+
+
+exports.verifyEmail = async function (req, res) {
+    try {
+        const { token } = req.params;
+        if (!token) {
+            return res.status(400).json({ message: "Token is required." });
+        }
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        console.log('Received Hashed Token for Verification:', hashedToken);
+
+        const user = await User.findOne({
+            verificationToken: hashedToken,
+            verificationExpire: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired verification token." });
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationExpire = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully. You can now log in." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
