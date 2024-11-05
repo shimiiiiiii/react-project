@@ -30,22 +30,15 @@ const userSchema = new mongoose.Schema({
         type: Date,
         required: [true, 'Please enter your birth date'],
     },
-    photos: [
-        {
-            public_id: {
-                type: String,
-            },
-            url: {
-                type: String,
-            }
+    photo: {
+        public_id: {
+            type: String,
+        },
+        url: {
+            type: String,
         }
-    ],
-    
-    // accountStatus: {
-    //     type: String,
-    //     enum: ['active', 'pending', 'suspended'],
-    //     default: 'active'
-    // },    
+    },
+     
     createdAt: {
         type: Date,
         default: Date.now

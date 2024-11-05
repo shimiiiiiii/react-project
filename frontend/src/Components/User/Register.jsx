@@ -12,8 +12,8 @@ const Register = () => {
     });
 
     const { name, email, password } = user;
-    const [photos, setPhotos] = useState([]);
-    const [photosPreview, setPhotosPreview] = useState([]);
+    const [photo, setPhoto] = useState(null);
+    const [photoPreview, setPhotoPreview] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -33,26 +33,23 @@ const Register = () => {
         formData.append('email', email);
         formData.append('password', password);
         formData.append('dateOfBirth', user.dateOfBirth);
-        photos.forEach((photo) => formData.append('photos', photo));
+        if (photo) formData.append('photo', photo);
 
         register(formData);
     };
 
     const onChange = (e) => {
-        if (e.target.name === 'photos') {
-            const files = Array.from(e.target.files);
-            setPhotos([]);
-            setPhotosPreview([]);
-            files.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = () => {
-                    if (reader.readyState === 2) {
-                        setPhotosPreview((oldArray) => [...oldArray, reader.result]);
-                        setPhotos((oldArray) => [...oldArray, file]);
-                    }
-                };
-                reader.readAsDataURL(file);
-            });
+        if (e.target.name === 'photo') {
+            const file = e.target.files[0];
+            setPhoto(file);
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                if (reader.readyState === 2) {
+                    setPhotoPreview(reader.result);
+                }
+            };
+            reader.readAsDataURL(file);
         } else {
             setUser({ ...user, [e.target.name]: e.target.value });
         }
@@ -68,7 +65,6 @@ const Register = () => {
             const { data } = await axios.post(`http://localhost:4000/api/register`, userData, config);
             console.log(data.user);
             setLoading(false);
-            setUser(data.user);
             navigate('/');
         } catch (error) {
             setLoading(false);
@@ -133,21 +129,18 @@ const Register = () => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="photos_upload">Profile</label>
+                            <label htmlFor="photo_upload">Profile Photo</label>
                             <input
                                 type="file"
-                                name="photos"
+                                name="photo"
                                 className="form-control"
-                                id="photos_upload"
-                                accept="images/*"
+                                id="photo_upload"
+                                accept="image/*"
                                 onChange={onChange}
-                                multiple
                             />
-                            <div className="preview-images">
-                                {photosPreview.map((img, idx) => (
-                                    <img key={idx} src={img} alt="Photo Preview" className="mt-3 mr-2" width="55" height="52" />
-                                ))}
-                            </div>
+                            {photoPreview && (
+                                <img src={photoPreview} alt="Photo Preview" className="mt-3" width="55" height="52" />
+                            )}
                         </div>
 
                         <button id="register_button" type="submit" className="btn btn-block py-3" disabled={loading}>

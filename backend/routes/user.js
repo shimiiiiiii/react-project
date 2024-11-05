@@ -17,10 +17,10 @@ const {
 
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
-router.post('/register', upload.array('photos', 10), register);
+router.post('/register', upload.single('photo'), register);
 router.post('/login', login);
 router.get('/profile', isVerified, getProfile)
-router.put('/profile/update', isVerified,  upload.array('photos', 10), updateProfile)
+router.put('/profile/update', isVerified,  upload.single('photo'), updateProfile)
 router.put('/password/update', isVerified, updatePassword)
 router.post('/password/forgot', isVerified);
 router.put('/password/reset/:token', resetPassword);

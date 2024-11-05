@@ -4,7 +4,7 @@ const cloudinary = require('cloudinary');
 
 const dotenv = require('dotenv');
 dotenv.config({path: './config/.env'})
-// dotenv.config(); // If .env is in the root directory
+// dotenv.config(); // root directory
 
 
 connectDatabase();

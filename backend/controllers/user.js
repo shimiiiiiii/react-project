@@ -8,35 +8,25 @@ exports.register = async (req, res, next) => {
     try {
         const { name, email, password, dateOfBirth } = req.body;
 
-        if (!req.files || req.files.length === 0) {
-            return res.status(400).json({ success: false, message: 'Please upload at least one photo' });
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'Please upload a photo' });
         }
 
-        if (dateOfBirth) {
-            req.body.dateOfBirth = new Date(dateOfBirth);
-        }
-
-        const imagesLinks = [];
-
-        for (let i = 0; i < req.files.length; i++) {
-            const result = await cloudinary.v2.uploader.upload(req.files[i].path, {
-                folder: 'photos',
-                width: 150,
-                crop: 'scale',
-            });
-
-            imagesLinks.push({
-                public_id: result.public_id,
-                url: result.secure_url
-            });
-        }
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+            folder: 'photos',
+            width: 150,
+            crop: 'scale',
+        });
 
         const user = await User.create({
             name,
             email,
             password,
             dateOfBirth,
-            photos: imagesLinks,
+            photo: {
+                public_id: result.public_id,
+                url: result.secure_url
+            },
         });
 
         const token = user.getJwtToken();
@@ -102,73 +92,53 @@ exports.getProfile = async (req, res, next) => {
 
 // Update User Profile
 exports.updateProfile = async (req, res, next) => {
-//     let user = await User.findById(req.user.id);
+    const newUserData = {
+        name: req.body.name,
+        email: req.body.email
+    };
 
-//     if (!user) {
-//         return res.status(404).json({
-//             success: false,
-//             message: 'User not found'
-//         });
-//     }
+    // Check if a new photo has been uploaded
+    if (req.file) {
+        // Find the existing user
+        const user = await User.findById(req.user.id);
+        
+        // Check if the user exists
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
 
-//     const newUserData = {
-//         name: req.body.name,
-//         email: req.body.email,
-//         dateOfBirth: req.body.dateOfBirth || user.dateOfBirth // Retain old dateOfBirth if not provided
-//     };
+        // Remove the old photo from Cloudinary if it exists
+        if (user.photo.public_id) {
+            await cloudinary.v2.uploader.destroy(user.photo.public_id);
+        }
 
-//     // Handle multiple file uploads for photos
-//     let images = [];
+        // Upload the new photo to Cloudinary
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+            folder: 'photos',
+            width: 150,
+            crop: 'scale',
+        });
 
-//     if (typeof req.body.photos === 'string') {
-//         images.push(req.body.photos);
-//     } else {
-//         images = req.body.photos;
-//     }
+        // Add photo data to newUserData
+        newUserData.photo = {
+            public_id: result.public_id,
+            url: result.secure_url,
+        };
+    }
 
-//     // If there are images, delete old images and upload new ones
-//     if (images && images.length > 0) {
-//         // Delete old photos from Cloudinary
-//         for (let i = 0; i < user.photos.length; i++) {
-//             const result = await cloudinary.v2.uploader.destroy(user.photos[i].public_id);
-//         }
+    // Update the user in the database
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+    });
 
-//         // Upload new photos to Cloudinary
-//         let imagesLinks = [];
-//         for (let i = 0; i < images.length; i++) {
-//             const result = await cloudinary.v2.uploader.upload(images[i], {
-//                 folder: 'photos', // Update to your desired folder structure
-//                 width: 150,
-//                 crop: "scale",
-//             });
-//             imagesLinks.push({
-//                 public_id: result.public_id,
-//                 url: result.secure_url
-//             });
-//         }
+    // Check if the user was updated
+    if (!user) {
+        return res.status(400).json({ success: false, message: 'User not updated' });
+    }
 
-//         // Update the user data with new images
-//         newUserData.photos = imagesLinks;
-//     } else {
-//         // If no new images, retain existing ones
-//         newUserData.photos = user.photos; 
-//     }
-
-//     // Update the user in the database
-//     const updatedUser = await User.findByIdAndUpdate(req.user.id, newUserData, {
-//         new: true,
-//         runValidators: true,
-//     });
-
-//     if (!updatedUser) {
-//         return res.status(401).json({ message: 'User Not Updated' });
-//     }
-
-//     return res.status(200).json({
-//         success: true,
-//         user: updatedUser // Optionally return the updated user
-//     });
-// };
+    res.status(200).json({ success: true, user });
+};
 
 // Update User Password
 exports.updatePassword = async (req, res, next) => {
