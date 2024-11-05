@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     },
     dateOfBirth: {
         type: Date,
-        required: [true, 'Please enter your birth date'],
+        // required: [true, 'Please enter your birth date'],
     },
     photo: {
         public_id: {
@@ -79,5 +79,18 @@ userSchema.methods.getResetPasswordToken = function () {
 
     return resetToken;
 };
+
+userSchema.methods.getVerificationToken = function() {
+    const verificationToken = crypto.randomBytes(20).toString('hex');
+
+    this.verificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
+    this.verificationExpire = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    console.log('Generated plain verification token:', verificationToken); 
+    console.log('Hashed and saved token:', this.verificationToken); // Add this for debugging
+
+    return verificationToken;
+};
+
 
 module.exports = mongoose.model('User', userSchema);

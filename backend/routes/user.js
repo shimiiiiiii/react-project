@@ -6,13 +6,14 @@ const {
     register, 
     login,
     getProfile,
+    verifyEmail,
     updateProfile,
     updatePassword,
     forgotPassword,
     resetPassword,
     allUsers,
     getDetails,
-    updateUser,
+    // updateUser,
 } = require('../controllers/user');
 
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
@@ -24,6 +25,8 @@ router.put('/profile/update', isVerified,  upload.single('photo'), updateProfile
 router.put('/password/update', isVerified, updatePassword)
 router.post('/password/forgot', isVerified);
 router.put('/password/reset/:token', resetPassword);
+router.post('/verify', verifyEmail);
+router.get('/verify/:token', verifyEmail);
 
 // router.get('/admin/users', isVerified, authorizeRoles('admin'), allUsers)
 // router.route('/admin/user/:id').get(isVerified,  getDetails).put(isVerified, updateUser)
