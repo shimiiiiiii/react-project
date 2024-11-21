@@ -201,3 +201,63 @@ exports.deleteProduct = async (req, res, next) => {
         });
     }
 };
+
+exports.getProductsByVariety = async (req, res, next) => {
+    try {
+        const products = await Product.find();
+
+        // Group products by their variety
+        const groupedProducts = products.reduce((acc, product) => {
+            acc[product.varieties] = acc[product.varieties] || [];
+            acc[product.varieties].push(product);
+            return acc;
+        }, {});
+
+        res.status(200).json({
+            success: true,
+            groupedProducts,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server Error',
+            error: error.message,
+        });
+    }
+};
+
+// Get Products Grouped by Variety
+exports.getProductMenu = async (req, res, next) => {
+    try {
+        // Define the varieties you want to fetch
+        const varietyNames = ['Classic', 'Premium', 'Supreme', 'Munchkins', 'Other'];
+        const menu = {};
+
+        // Fetch last 4 products for each variety
+        for (const varietyName of varietyNames) {
+            const products = await Product.find()
+                .populate({
+                    path: 'varieties', // Populate the variety field
+                    match: { name: varietyName }, // Filter by variety name
+                    select: 'name', // Only fetch the variety name
+                })
+                .sort({ createdAt: -1 }) // Sort by most recent
+                .limit(4); // Limit to 4 products
+
+            // Only include products where the variety matches
+            menu[varietyName] = products.filter((product) => product.varieties);
+        }
+
+        res.status(200).json({
+            success: true,
+            menu,
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server Error',
+        });
+    }
+};
+

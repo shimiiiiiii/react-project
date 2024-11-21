@@ -34,7 +34,7 @@ exports.register = async (req, res, next) => {
           // Generate verification token
           const verificationToken = user.getVerificationToken();
 
-          // Save the user to persist verification token in the database
+          // Save the user to persist verification token in the database    
           await user.save({ validateBeforeSave: false });
  
           // Create verification URL
