@@ -11,13 +11,13 @@ const {
     deleteProduct
 } = require('../controllers/product');
 
-const { getSuppliers } = require('../controllers/supplier');
+const { getVarieties } = require('../controllers/variety');
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
 router.get('/products', getProducts);
 router.get('/product/:id', getSingleProduct);
 router.get('/admin/products', getAdminProducts);
-router.get('/suppliers', getSuppliers); 
+router.get('/varieties', getVarieties); 
 router.post('/admin/product/new', isVerified, upload.array('images', 10), newProduct);
 router.route('/admin/product/:id', isVerified).put(updateProduct).delete(deleteProduct); 
 

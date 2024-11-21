@@ -34,14 +34,9 @@ const productSchema = new mongoose.Schema({
         }
     ],
     variety: {
-        type: String,
-        required: [true, 'Please select donut variety'],
-        enum: ['Classic', 'Premium', 'Supreme', 'Munchkins', 'Other']
-    },
-    supplier: {
         type: mongoose.Schema.ObjectId,
-        ref: 'Supplier',
-        required: [true, 'Please select a supplier']
+        ref: 'Variety',
+        required: [true, 'Please select a variety']
     },
     stock: {
         type: Number,

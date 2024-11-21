@@ -5,7 +5,7 @@ const app = express();
 
 const users = require('../routes/user');
 const products = require('../routes/product');
-const suppliers = require('../routes/supplier');
+const varieties = require('../routes/variety');
 const faqs = require('../routes/faq');
 // const auth = require('../routes/auth');
 // const order = require('../routes/order');
@@ -22,7 +22,7 @@ app.use(express.urlencoded({limit: "50mb", extended: true }));
 
 app.use('/api', users);
 app.use('/api', products);
-app.use('/api', suppliers);
+app.use('/api', varieties);
 app.use('/api', faqs);
 
 

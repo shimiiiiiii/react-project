@@ -12,9 +12,8 @@ const NewProduct = () => {
     const [price, setPrice] = useState(0)
     const [description, setDescription] = useState('')
     const [variety, setVariety] = useState('')
+    const [varieties, setVarieties] = useState([])
     const [stock, setStock] = useState(0)
-    const [supplier, setSupplier] = useState('')
-    const [suppliers, setSuppliers] = useState([])
     const [images, setImages] = useState([])
     const [imagesPreview, setImagesPreview] = useState([])
     const [error, setError] = useState('')
@@ -22,30 +21,22 @@ const NewProduct = () => {
     const [success, setSuccess] = useState('')
     const [product, setProduct] = useState({})
 
-    const varieties = [
-        'Classic',
-        'Premium',
-        'Supreme',
-        'Munchkins',
-        'Other'
-    ]
-
     let navigate = useNavigate()
 
     useEffect(() => {
         // fetch suppliers
-        const fetchSuppliers = async () => {
+        const fetchVarieties = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:4000/api/suppliers`, {
+                const { data } = await axios.get(`http://localhost:4000/api/varieties`, {
                     headers: { Authorization: `Bearer ${getToken()}` }
                 })
-                setSuppliers(data.suppliers)
+                setVarieties(data.varieties)
             } catch (error) {
                 setError(error.response.data.message)
             }
         }
 
-        fetchSuppliers()
+        fetchVarieties()
     }, [])
 
     const submitHandler = (e) => {
@@ -57,7 +48,6 @@ const NewProduct = () => {
         formData.set('description', description)
         formData.set('variety', variety)
         formData.set('stock', stock)
-        formData.set('supplier', supplier)
 
         images.forEach(image => {
             formData.append('images', image)
@@ -186,11 +176,21 @@ const NewProduct = () => {
                                     ></textarea>
                                 </div>
 
-                                <div className="form-group">
+                                {/* <div className="form-group">
                                     <label htmlFor="variety_field">Variety</label>
                                     <select className="form-control" id="variety_field" value={variety} onChange={(e) => setVariety(e.target.value)}>
                                         {varieties.map(variety => (
                                             <option key={variety} value={variety}>{variety}</option>
+                                        ))}
+                                    </select>
+                                </div> */}
+
+                                <div className="form-group">
+                                    <label htmlFor="variety_field">Variety</label>
+                                    <select className="form-control" id="variety_field" value={variety} onChange={(e) => setVariety(e.target.value)}>
+                                        <option value="">Select Variety</option>
+                                        {varieties.map(variety => (
+                                            <option key={variety._id} value={variety._id}>{variety.name}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -204,16 +204,6 @@ const NewProduct = () => {
                                         value={stock}
                                         onChange={(e) => setStock(e.target.value)}
                                     />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="supplier_field">Supplier</label>
-                                    <select className="form-control" id="supplier_field" value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-                                        <option value="">Select Supplier</option>
-                                        {suppliers.map(supplier => (
-                                            <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-                                        ))}
-                                    </select>
                                 </div>
 
                                 <div className="form-group">
