@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Meta from '../Layout/Meta';
 import axios from 'axios';
+import '../CSS/Register.css';
+import { auth, createUserWithEmailAndPassword } from '../../utils/firebase.js';
+import DatePicker from 'react-datepicker'; // Import DatePicker
+import "react-datepicker/dist/react-datepicker.css"; // Import the necessary CSS
 
 const Register = () => {
     const [user, setUser] = useState({
         name: '',
         email: '',
         password: '',
-        dateOfBirth: '',
+        dateOfBirth: '', // Keep the format yyyy-mm-dd
     });
 
-    const { name, email, password } = user;
+    const { name, email, password, dateOfBirth } = user;
     const [photo, setPhoto] = useState(null);
     const [photoPreview, setPhotoPreview] = useState(null);
     const [error, setError] = useState('');
@@ -24,18 +28,18 @@ const Register = () => {
             console.log(error);
             setError('');
         }
-    }, [error, navigate]);
+    }, [error]);
 
-    const submitHandler = (e) => {
+    const submitHandler = async (e) => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('name', name);
         formData.append('email', email);
         formData.append('password', password);
-        formData.append('dateOfBirth', user.dateOfBirth);
+        formData.append('dateOfBirth', dateOfBirth); // Send the date as yyyy-mm-dd
         if (photo) formData.append('photo', photo);
 
-        register(formData);
+        await register(formData);
     };
 
     const onChange = (e) => {
@@ -55,21 +59,38 @@ const Register = () => {
         }
     };
 
+    const handleDateChange = (date) => {
+        // Format the date to yyyy-mm-dd
+        const formattedDate = date.toISOString().split('T')[0];
+        setUser({ ...user, dateOfBirth: formattedDate });
+    };
+
     const register = async (userData) => {
         try {
+            setLoading(true);
+
+            // Step 1: Register with Firebase
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            // Step 2: Get Firebase token for authentication
+            const firebaseToken = await userCredential.user.getIdToken();
+
+            // Step 3: Send Firebase token and user data to backend
             const config = {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data', // multipart for FormData
+                    Authorization: `Bearer ${firebaseToken}`,
                 },
             };
-            const { data } = await axios.post(`http://localhost:4000/api/register`, userData, config);
+
+            const { data } = await axios.post('http://localhost:4000/api/register', userData, config);
             console.log(data.user);
             setLoading(false);
             navigate('/');
         } catch (error) {
             setLoading(false);
-            setError(error.response.data.message);
-            console.log(error.response.data.message);
+            setError(error.message);
+            console.log(error.message);
         }
     };
 
@@ -90,6 +111,7 @@ const Register = () => {
                                 name="name"
                                 value={name}
                                 onChange={onChange}
+                                required
                             />
                         </div>
 
@@ -102,6 +124,7 @@ const Register = () => {
                                 name="email"
                                 value={email}
                                 onChange={onChange}
+                                required
                             />
                         </div>
 
@@ -114,17 +137,18 @@ const Register = () => {
                                 name="password"
                                 value={password}
                                 onChange={onChange}
+                                required
                             />
                         </div>
 
                         <div className="form-group">
                             <label htmlFor="date_of_birth">Date of Birth</label>
-                            <input
-                                type="date"
-                                id="date_of_birth"
+                            <DatePicker
+                                selected={dateOfBirth ? new Date(dateOfBirth) : null}
+                                onChange={handleDateChange}
+                                dateFormat="yyyy-MM-dd" // Ensure the date is displayed in yyyy-mm-dd format
                                 className="form-control"
-                                name="dateOfBirth"
-                                onChange={onChange}
+                                required
                             />
                         </div>
 
@@ -144,7 +168,7 @@ const Register = () => {
                         </div>
 
                         <button id="register_button" type="submit" className="btn btn-block py-3" disabled={loading}>
-                            REGISTER
+                            {loading ? "Registering..." : "REGISTER"}
                         </button>
                     </form>
                 </div>

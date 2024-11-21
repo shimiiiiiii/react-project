@@ -8,16 +8,20 @@ const {
     getAdminProducts,
     newProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsByVariety,
+    getProductMenu
 } = require('../controllers/product');
 
-const { getVarieties } = require('../controllers/variety');
+const { getSuppliers } = require('../controllers/supplier');
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
 router.get('/products', getProducts);
 router.get('/product/:id', getSingleProduct);
+router.get('/products-by-variety', getProductsByVariety);
+router.get('/products/menu', getProductMenu);
 router.get('/admin/products', getAdminProducts);
-router.get('/varieties', getVarieties); 
+router.get('/suppliers', getSuppliers); 
 router.post('/admin/product/new', isVerified, upload.array('images', 10), newProduct);
 router.route('/admin/product/:id', isVerified).put(updateProduct).delete(deleteProduct); 
 

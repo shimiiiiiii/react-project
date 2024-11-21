@@ -5,9 +5,11 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const NewVariety = () => {
+const NewSupplier = () => {
     const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
+    const [contactNumber, setContactNumber] = useState('');
+    const [email, setEmail] = useState('');
+    const [address, setAddress] = useState('');
     const [images, setImages] = useState([]);
     const [imagesPreview, setImagesPreview] = useState([]);
     const [error, setError] = useState('');
@@ -19,13 +21,15 @@ const NewVariety = () => {
 
         const formData = new FormData();
         formData.set('name', name);
-        formData.set('description', description);
+        formData.set('contactNumber', contactNumber);
+        formData.set('email', email);
+        formData.set('address', address);
 
         images.forEach(image => {
             formData.append('images', image);
         });
 
-        createVariety(formData);
+        createSupplier(formData);
     };
 
     const onChange = e => {
@@ -46,7 +50,7 @@ const NewVariety = () => {
         });
     };
 
-    const createVariety = async (formData) => {
+    const createSupplier = async (formData) => {
         setLoading(true);
         try {
             const config = {
@@ -56,7 +60,7 @@ const NewVariety = () => {
                 }
             };
 
-            const { data } = await axios.post(`http://localhost:4000/api/admin/variety/new`, formData, config);
+            const { data } = await axios.post(`http://localhost:4000/api/admin/supplier/new`, formData, config);
             setLoading(false);
             setSuccess(data.success);
         } catch (error) {
@@ -71,16 +75,16 @@ const NewVariety = () => {
         }
 
         if (success) {
-            toast.success('Variety created successfully', { position: 'bottom-right' });
+            toast.success('Supplier created successfully', { position: 'bottom-right' });
         }
     }, [error, success]);
 
     return (
         <>
-            <Meta title={'New Variety'} />
+            <Meta title={'New Supplier'} />
             <div className="container mt-5">
                 <form className="shadow-lg" onSubmit={submitHandler} encType="multipart/form-data">
-                    <h1 className="mb-4">New Variety</h1>
+                    <h1 className="mb-4">New Supplier</h1>
 
                     <div className="form-group">
                         <label htmlFor="name_field">Name</label>
@@ -95,13 +99,37 @@ const NewVariety = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="description_field">Description</label>
+                        <label htmlFor="contact_field">Contact Number</label>
+                        <input
+                            type="text"
+                            id="contact_field"
+                            className="form-control"
+                            value={contactNumber}
+                            onChange={(e) => setContactNumber(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="email_field">Email</label>
+                        <input
+                            type="email"
+                            id="email_field"
+                            className="form-control"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label htmlFor="address_field">Address</label>
                         <textarea
                             className="form-control"
-                            id="description_field"
+                            id="address_field"
                             rows="4"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
                             required
                         ></textarea>
                     </div>
@@ -141,4 +169,4 @@ const NewVariety = () => {
     );
 };
 
-export default NewVariety;
+export default NewSupplier;
