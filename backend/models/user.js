@@ -92,17 +92,4 @@ userSchema.methods.getVerificationToken = function() {
     return verificationToken;
 };
 
-
-userSchema.methods.getVerificationToken = function() {
-    const verificationToken = crypto.randomBytes(20).toString('hex');
-
-    this.verificationToken = crypto.createHash('sha256').update(verificationToken).digest('hex');
-    this.verificationExpire = Date.now() + 60 * 60 * 1000; // 1 hour
-
-    console.log('Generated plain verification token:', verificationToken); 
-    console.log('Hashed and saved token:', this.verificationToken); // Add this for debugging
-
-    return verificationToken;
-};
-
 module.exports = mongoose.model('User', userSchema);
