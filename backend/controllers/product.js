@@ -1,6 +1,7 @@
 const Product = require('../models/product');
 const APIFeatures = require('../utils/apiFeatures');
 const cloudinary = require('cloudinary');
+const Variety = require('../models/variety');
 
 // Get All Products
 exports.getProducts = async (req, res, next) => {
@@ -202,20 +203,15 @@ exports.deleteProduct = async (req, res, next) => {
     }
 };
 
-exports.getProductsByVariety = async (req, res, next) => {
+exports.getVarieties = async (req, res, next) => {
     try {
-        const products = await Product.find();
+        // Fetch all varieties from the database
+        const varieties = await Variety.find();
 
-        // Group products by their variety
-        const groupedProducts = products.reduce((acc, product) => {
-            acc[product.varieties] = acc[product.varieties] || [];
-            acc[product.varieties].push(product);
-            return acc;
-        }, {});
-
+        // Send the varieties in the response
         res.status(200).json({
             success: true,
-            groupedProducts,
+            varieties,
         });
     } catch (error) {
         res.status(500).json({
@@ -261,3 +257,72 @@ exports.getProductMenu = async (req, res, next) => {
     }
 };
 
+exports.getProductsByVariety = async (req, res) => {
+  try {
+    const { varietyId } = req.query; // Expect varietyId to be in the query params
+
+    // Find products by varietyId
+    const products = await Product.find({ varietyId })
+      .populate('varietyId', 'name description images') // Populate variety details if needed
+      .exec();
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No products found for this variety',
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error('Error fetching products by variety:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: error.message,
+    });
+  }
+};
+
+exports.VarietyDetail = async (req, res) => {
+    try {
+      // Access varietyId from route parameters
+      const { id: varietyId } = req.params;
+  
+      // Check if varietyId exists
+      if (!varietyId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Variety ID is required',
+        });
+      }
+  
+      // Fetch products that belong to the specified varietyId and populate the variety field
+      const products = await Product.find({ variety: varietyId })
+        .populate('variety', 'name description images')  // Populate 'variety' field with name, description, and images
+        .exec();
+  
+      if (!products || products.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: 'No products found for this variety',
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        products,
+      });
+    } catch (error) {
+      console.error('Error fetching products by variety:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server Error',
+        error: error.message,
+      });
+    }
+  };
+  

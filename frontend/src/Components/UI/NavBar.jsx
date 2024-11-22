@@ -3,7 +3,8 @@ import { Navbar, Nav, Button } from 'react-bootstrap';
 import { Modal, Box } from '@mui/material';
 import '../CSS/Navbar.css';
 import itachiLogo from '../images/itachi.jpg';
-import Login from '../User/Login'; // Import the Login component
+import Login from '../User/Login'; 
+
 
 const CustomNavbar = () => {
   const [open, setOpen] = useState(false);
@@ -18,18 +19,17 @@ const CustomNavbar = () => {
           <img src={itachiLogo} alt="Logo" className="logo-img" />
           DUCK DONUTS
         </Navbar.Brand>
-        {/* <Navbar.Toggle aria-controls="basic-navbar-nav" /> */}
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ml-auto menu-links">
-            <Nav.Link href="#home">home</Nav.Link>
-            <Nav.Link href="#menu">menu</Nav.Link>
-            <Nav.Link href="#catering">catering</Nav.Link>
-            <Nav.Link href="#locations">locations</Nav.Link>
-            <Nav.Link href="#about">about us</Nav.Link>
-            <Nav.Link href="#jobs">jobs</Nav.Link>
-            <Nav.Link href="#newsroom">newsroom</Nav.Link>
-            <Nav.Link href="#giftcards">gift cards</Nav.Link>
-            <Nav.Link href="#chat">quack chat</Nav.Link>
+            <Nav.Link href="/">Home</Nav.Link>
+            <Nav.Link href="/menu">Menu</Nav.Link>
+            <Nav.Link href="#catering">Catering</Nav.Link>
+            <Nav.Link href="#locations">Locations</Nav.Link>
+            <Nav.Link href="#about">About us</Nav.Link>
+            <Nav.Link href="#jobs">Jobs</Nav.Link>
+            <Nav.Link href="#newsroom">Newsroom</Nav.Link>
+            <Nav.Link href="#giftcards">Gift Cards</Nav.Link>
+            <Nav.Link href="#chat">Quack Chat</Nav.Link>
             <Nav.Link href="#franchise" className="franchise-opportunities">
               Franchising Opportunities
             </Nav.Link>

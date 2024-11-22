@@ -1,47 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; 
 import '../CSS/Product_Variety.css';
-
+import Footer from '../Layout/Footer';
 const ProductVariety = () => {
-  const [productsByVariety, setProductsByVariety] = useState({});
+  const [varieties, setVarieties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchVarieties = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/products-by-variety'); 
-        setProductsByVariety(response.data.groupedProducts);
+        const response = await axios.get('http://localhost:4000/api/varieties'); 
+        setVarieties(response.data.varieties); 
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        console.error('Error fetching varieties:', error);
         setLoading(false);
       }
     };
 
-    fetchProducts();
+    fetchVarieties();
   }, []);
 
-  if (loading) return <p>Loading products...</p>;
+  if (loading) return <p>Loading varieties...</p>;
 
   return (
     <div className="product-variety-container">
-      {Object.entries(productsByVariety).map(([variety, products]) => (
-        <div key={variety} className="variety-group">
-          <h2 className="variety-title">{variety}</h2>
-          <div className="products-grid">
-            {products.map((product) => (
-              <div className="product-card" key={product._id}>
-                <img src={product.images[0]?.url} alt={product.name} className="product-image" />
-                <h3 className="product-title">{product.name}</h3>
-                <p className="product-description">{product.description}</p>
-                <a href={product.link} className="view-menu-link">
+      {varieties.map((variety) => (
+        <div className="product-card" key={variety._id}>
+          <img src={variety.images[0]?.url} alt={variety.name} className="product-image" />
+          <h3 className="product-title">{variety.name}</h3>
+          <p className="product-description">{variety.description}</p>
+          <Link to={`/products/variety/${variety._id}`} className="view-menu-link">
             View Menu <span className="arrow">→</span>
-        </a>
-              </div>
-            ))}
-          </div>
+          </Link>
         </div>
       ))}
+       
     </div>
   );
 };

@@ -26,6 +26,10 @@ import Home from './Components/UI/Home';
 import Menu from './Components/UI/Menu';
 import ProductDetails from './Components/UI/ProductModal';
 
+
+import VarietyDetail from './Components/UI/ProductVarietyDetail'; 
+
+
 function App() {
   // const [count, setCount] = useState(0)
 
@@ -37,8 +41,9 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/product/details" element={<ProductDetails />} />
-              {/* <Route path="/profile/update" element={<EditProfile />} /> */}
               <Route path="/menu" element={<Menu />} />
+              {/* Add a route for the variety detail page */}
+              <Route path="/products/variety/:varietyId" element={<VarietyDetail />} />
               <Route path="/admin/product/new" element={<NewProduct />} />
               <Route path="/admin/product/:id" element={<EditProduct />} />
               

@@ -9,8 +9,9 @@ const {
     newProduct,
     updateProduct,
     deleteProduct,
-    getProductsByVariety,
-    getProductMenu
+    getVarieties,
+    getProductMenu,
+    VarietyDetail
 } = require('../controllers/product');
 
 const { getSuppliers } = require('../controllers/supplier');
@@ -18,7 +19,8 @@ const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
 router.get('/products', getProducts);
 router.get('/product/:id', getSingleProduct);
-router.get('/products-by-variety', getProductsByVariety);
+router.get('/products-by-variety', getVarieties);
+router.get('/products/variety/:id', VarietyDetail);
 router.get('/products/menu', getProductMenu);
 router.get('/admin/products', getAdminProducts);
 router.get('/suppliers', getSuppliers); 

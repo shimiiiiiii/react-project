@@ -4,7 +4,10 @@
     justify-content: center;
     gap: 1.5rem;
     padding: 2rem;
+    margin-bottom: 50px;
   }
+
+  
   
   .product-card {
     background-color: white;
@@ -66,4 +69,42 @@
   .view-menu-link:hover .arrow {
     color: #ff4b8b;
   }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 1.5rem; 
+    width: 100%;
+  }
+  
+  .variety-group {
+    margin-bottom: 2rem; 
+  }
+  
+  .variety-title {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .product-card {
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    width: 180px;
+    text-align: center;
+    padding: 1.5rem;
+    position: relative;
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .product-card:hover {
+    transform: translateY(-5px);
+  }
+  
+
   

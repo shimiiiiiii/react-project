@@ -4,6 +4,8 @@ import '../CSS/ProductModal.css';
 
 Modal.setAppElement('#root');
 
+
+
 const ProductModal = ({ isOpen, product, closeModal }) => {
 
   const [selectedImage, setSelectedImage] = useState(product?.images[0]?.url || '');
