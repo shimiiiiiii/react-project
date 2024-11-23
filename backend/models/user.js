@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
     },
     dateOfBirth: {
         type: Date,
-        // required: [true, 'Please enter your birth date'],
+        required: [true, 'Please enter your birth date'],
     },
     photo: {
         public_id: {
@@ -38,6 +38,13 @@ const userSchema = new mongoose.Schema({
             type: String,
         }
     },
+
+    isVerified: { 
+        type: Boolean,
+        default: false 
+    },
+    verificationToken: String,
+    verificationExpire: Date,  
      
     createdAt: {
         type: Date,
@@ -91,5 +98,6 @@ userSchema.methods.getVerificationToken = function() {
 
     return verificationToken;
 };
+
 
 module.exports = mongoose.model('User', userSchema);

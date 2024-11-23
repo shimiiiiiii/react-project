@@ -13,10 +13,12 @@ const {
     resetPassword,
     allUsers,
     getDetails,
+    getUserDetails,
+    getMe,
     // updateUser,
 } = require('../controllers/user');
 
-const { isVerified, authorizeRoles } = require('../middlewares/auth');
+const { isVerified, authorizeRoles,  } = require('../middlewares/auth');
 
 router.post('/register', upload.single('photo'), register);
 router.post('/login', login);
@@ -27,6 +29,9 @@ router.post('/password/forgot', isVerified);
 router.put('/password/reset/:token', resetPassword);
 router.post('/verify', verifyEmail);
 router.get('/verify/:token', verifyEmail);
+
+router.get('/user/me', isVerified, getMe);
+
 
 // router.get('/admin/users', isVerified, authorizeRoles('admin'), allUsers)
 // router.route('/admin/user/:id').get(isVerified,  getDetails).put(isVerified, updateUser)

@@ -345,3 +345,36 @@ exports.verifyEmail = async function (req, res) {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
+
+exports.getMe = async (req, res) => {
+    try {
+        // Get the token from the Authorization header
+        const token = req.headers.authorization?.split(' ')[1]; // Assuming Bearer token
+
+        if (!token) {
+            return res.status(400).json({ success: false, message: 'Token is missing' });
+        }
+
+        // Decode the token to get the user ID (assuming the token contains user id and name)
+        const decoded = jwt.decode(token); // Decodes the token without verifying the signature (if you don't need to verify it)
+
+        if (!decoded) {
+            return res.status(401).json({ success: false, message: 'Invalid token' });
+        }
+
+        const { id, name } = decoded; // Extract user ID and name from decoded token
+
+        // Retrieve the user details from the database
+        const user = await User.findById(id).select('-password'); // Exclude password from the response
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Respond with user data
+        res.status(200).json({ success: true, user: { id, name, email: user.email } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

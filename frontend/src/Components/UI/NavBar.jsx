@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
-import { Modal, Box } from '@mui/material';
+import { Modal, Box } from '@mui/material'; // Ensure you've installed @mui/material
 import '../CSS/Navbar.css';
 import itachiLogo from '../images/itachi.jpg';
 import Login from '../User/Login'; 
-
+import AddToCartModal from '../UI/AddtoCartModal'; // Ensure AddToCartModal is imported correctly
 
 const CustomNavbar = () => {
   const [open, setOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false); // State for cart modal
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  // Open/Close logic for Login Modal
+  const handleOpenLogin = () => setOpen(true);
+  const handleCloseLogin = () => setOpen(false);
+
+  // Open/Close logic for AddToCart Modal
+  const handleOpenCart = () => setCartOpen(true);
+  const handleCloseCart = () => setCartOpen(false);
 
   return (
     <>
@@ -30,18 +36,22 @@ const CustomNavbar = () => {
             <Nav.Link href="#newsroom">Newsroom</Nav.Link>
             <Nav.Link href="#giftcards">Gift Cards</Nav.Link>
             <Nav.Link href="#chat">Quack Chat</Nav.Link>
-            <Nav.Link href="#franchise" className="franchise-opportunities">
-              Franchising Opportunities
-            </Nav.Link>
-            <Button className="order-button" onClick={handleOpen}>
+            
+            {/* Order Online Button */}
+            <Button className="order-button" onClick={handleOpenLogin}>
               Order Online!
+            </Button>
+
+            {/* Add to Cart Button (Icon) */}
+            <Button className="addtocart-button" onClick={handleOpenCart}>
+              🛒
             </Button>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
       {/* Login Modal */}
-      <Modal open={open} onClose={handleClose}>
+      <Modal open={open} onClose={handleCloseLogin}>
         <Box
           sx={{
             position: 'absolute',
@@ -55,9 +65,12 @@ const CustomNavbar = () => {
             borderRadius: 2,
           }}
         >
-          <Login handleClose={handleClose} /> {/* Pass handleClose to Login */}
+          <Login handleClose={handleCloseLogin} />
         </Box>
       </Modal>
+
+      {/* Add to Cart Modal */}
+      <AddToCartModal open={cartOpen} handleClose={handleCloseCart} />
     </>
   );
 };

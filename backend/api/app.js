@@ -7,8 +7,7 @@ const users = require('../routes/user');
 const products = require('../routes/product');
 const varieties = require('../routes/variety');
 const faqs = require('../routes/faq');
-// const auth = require('../routes/auth');
-// const order = require('../routes/order');
+const cart = require('../routes/cart');
 
 app.use(cors({
     origin: '*',
@@ -24,6 +23,8 @@ app.use('/api', users);
 app.use('/api', products);
 app.use('/api', varieties);
 app.use('/api', faqs);
+app.use('/api', cart);
+
 
 
 module.exports = app
