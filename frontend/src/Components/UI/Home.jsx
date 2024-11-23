@@ -4,6 +4,7 @@ import ProductVariety from './Product_Variety';
 import { Button } from '@mui/material'; 
 import Navbar from './NavBar';
 import Footer from '../Layout/Footer';
+import ProductAll from './Allproducts';
 
 
 const HomeWithProducts = () => {
@@ -45,6 +46,7 @@ const HomeWithProducts = () => {
         </div>
       </div>
       <ProductVariety />
+      <ProductAll />
       <Footer /> 
     </div>
   );

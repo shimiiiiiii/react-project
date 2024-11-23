@@ -258,34 +258,35 @@ exports.getProductMenu = async (req, res, next) => {
 };
 
 exports.getProductsByVariety = async (req, res) => {
-  try {
-    const { varietyId } = req.query; // Expect varietyId to be in the query params
+    try {
+        const { varietyId } = req.params; // varietyId comes from params
+        const page = Number(req.query.page) || 1; // Default to page 1
+        const limit = Number(req.query.limit) || 10; // Default to 10 products per page
+        const skip = (page - 1) * limit;
 
-    // Find products by varietyId
-    const products = await Product.find({ varietyId })
-      .populate('varietyId', 'name description images') // Populate variety details if needed
-      .exec();
+        const products = await Product.find({ variety: varietyId })
+            .populate('variety', 'name description images') // Populate variety details if needed
+            .skip(skip)
+            .limit(limit);
 
-    if (!products || products.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: 'No products found for this variety',
-      });
+        const totalProducts = await Product.countDocuments({ variety: varietyId });
+
+        res.status(200).json({
+            success: true,
+            products,
+            page,
+            totalPages: Math.ceil(totalProducts / limit),
+        });
+    } catch (error) {
+        console.error('Error fetching products by variety:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server Error',
+            error: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      products,
-    });
-  } catch (error) {
-    console.error('Error fetching products by variety:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message,
-    });
-  }
 };
+
 
 exports.VarietyDetail = async (req, res) => {
     try {
@@ -318,6 +319,25 @@ exports.VarietyDetail = async (req, res) => {
       });
     } catch (error) {
       console.error('Error fetching products by variety:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server Error',
+        error: error.message,
+      });
+    }
+  };
+  
+  exports.getAllProducts = async (req, res) => {
+    try {
+      // Fetch all products and populate the variety field
+      const products = await Product.find().populate('variety', 'name'); // Populate only the name field of variety
+  
+      res.status(200).json({
+        success: true,
+        products, // Return products with populated variety names
+      });
+    } catch (error) {
+      console.error('Error fetching all products:', error);
       res.status(500).json({
         success: false,
         message: 'Server Error',

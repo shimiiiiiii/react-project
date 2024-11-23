@@ -1,30 +1,43 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../CSS/VarietyDetail.css';
-import { Button } from '@mui/material'; 
-import NavBar from './NavBar'; 
-import ProductModal from './ProductModal';  
-import { useParams } from 'react-router-dom'; 
+import { Button } from '@mui/material';
+import NavBar from './NavBar';
+import ProductModal from './ProductModal';
+import { useParams } from 'react-router-dom';
 import Footer from '../Layout/Footer';
 
 const Menu = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [varietyDetails, setVarietyDetails] = useState(null); 
-  const { varietyId } = useParams(); 
+  const [varietyDetails, setVarietyDetails] = useState(null);
+  const [page, setPage] = useState(1); // Tracks the current page for pagination
+  const [hasMore, setHasMore] = useState(true); // Tracks if more products are available
+  const { varietyId } = useParams();
 
   useEffect(() => {
     const fetchProductsByVariety = async () => {
+      if (!hasMore) return; // Stop fetching if there are no more products
+      setLoading(true);
       try {
-        // Fetch products by varietyId
-        const productResponse = await axios.get(`http://localhost:4000/api/products/variety/${varietyId}`);
-        setProducts(productResponse.data.products); 
+        // Fetch products by varietyId with pagination
+        const productResponse = await axios.get(
+          `http://localhost:4000/api/products/variety/${varietyId}?page=${page}`
+        );
+        setProducts((prevProducts) => [
+          ...prevProducts,
+          ...productResponse.data.products,
+        ]);
+        setHasMore(productResponse.data.products.length > 0);
 
-       
-        const varietyResponse = await axios.get(`http://localhost:4000/api/variety/${varietyId}`);
-        setVarietyDetails(varietyResponse.data.variety); 
+        if (page === 1) {
+          const varietyResponse = await axios.get(
+            `http://localhost:4000/api/variety/${varietyId}`
+          );
+          setVarietyDetails(varietyResponse.data.variety);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -32,10 +45,22 @@ const Menu = () => {
       }
     };
 
-    if (varietyId) {
-      fetchProductsByVariety();
-    }
-  }, [varietyId]);
+    fetchProductsByVariety();
+  }, [page, varietyId, hasMore]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 50
+      ) {
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const openModal = (product) => {
     setSelectedProduct(product);
@@ -47,26 +72,26 @@ const Menu = () => {
     setSelectedProduct(null);
   };
 
-  if (loading) return <p>Loading...</p>;
-
   return (
     <div className="menu-container">
       <NavBar />
-   
+
       <div className="banner">
-        <h1 className="banner-title">{varietyDetails?.name || 'MENU'}</h1> 
+        <h1 className="banner-title">{varietyDetails?.name || 'MENU'}</h1>
       </div>
 
       <section className="seasonal-section">
-        <h2 className="section-title">{varietyDetails?.name || 'MENU'}</h2> 
-        <p className="section-subtitle">{varietyDetails?.description || 'Seasonal'}</p> 
+        <h2 className="section-title">{varietyDetails?.name || 'MENU'}</h2>
+        <p className="section-subtitle">
+          {varietyDetails?.description || 'Seasonal'}
+        </p>
         <div className="seasonal-items">
           {products.length > 0 ? (
             products.map((product) => (
               <div
                 className="item"
                 key={product._id}
-                onClick={() => openModal(product)} 
+                onClick={() => openModal(product)}
               >
                 <img
                   src={product.images[0]?.url || 'default-image.png'}
@@ -80,6 +105,7 @@ const Menu = () => {
             <p>No products available for this variety.</p>
           )}
         </div>
+        {loading && <p>Loading...</p>}
       </section>
 
       <ProductModal
@@ -87,7 +113,7 @@ const Menu = () => {
         product={selectedProduct}
         onClose={closeModal}
       />
-         <Footer /> 
+      <Footer />
     </div>
   );
 };
