@@ -35,28 +35,23 @@ const Login = () => {
     // Login handler for email/password
     const login = async (email, password) => {
         try {
-            setLoading(true);
-
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const firebaseToken = await userCredential.user.getIdToken();
-
             const config = {
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${firebaseToken}`,
-                },
-            };
-
-            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email, password }, config);
-            authenticate(data, () => navigate("/"));
+                    'Content-Type': 'application/json'
+                }
+            }
+            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email, password }, config)
+            console.log(data)
+            authenticate(data, () => navigate("/"))
+            
         } catch (error) {
-            toast.error("Invalid user or password", {
-                position: "bottom-right",
-            });
-        } finally {
-            setLoading(false);
+            toast.error("invalid user or password", {
+                position: "bottom-right"
+            })
         }
-    };
+    }
+    
+    
 
     const handleGoogleLogin = async () => {
         try {
@@ -76,7 +71,7 @@ const Login = () => {
                 },
             };
     
-            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email: user.email }, config);
+            const { data } = await axios.post(`${import.meta.env.VITE_API}/fb/login`, { email: user.email }, config);
     
             // Store backend token and user data, then redirect
             authenticate({ token: data.token, user: data.user, firebaseToken }, () => navigate("/"));
@@ -106,7 +101,7 @@ const Login = () => {
                 },
             };
     
-            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email: user.email }, config);
+            const { data } = await axios.post(`${import.meta.env.VITE_API}/fb/login`, { email: user.email }, config);
     
             // Store backend token and user data, then redirect
             authenticate({ token: data.token, user: data.user, firebaseToken }, () => navigate("/"));

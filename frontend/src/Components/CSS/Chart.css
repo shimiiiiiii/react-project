@@ -1,0 +1,69 @@
+/* Styling the chart container */
+.chart-container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+
+.chart-container h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Styling the date picker inputs */
+.date-picker-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-picker-container label {
+    font-weight: bold;
+    margin-right: 5px;
+    color: #444;
+}
+
+.date-picker-container input[type="date"] {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    color: #333;
+    background: #f9f9f9;
+    transition: border-color 0.3s;
+}
+
+.date-picker-container input[type="date"]:focus {
+    border-color: #4caf50;
+    outline: none;
+}
+
+/* Button styling */
+.date-picker-container button {
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.date-picker-container button:hover {
+    background-color: #45a049;
+}
+
+/* Chart styling */
+.chart-container canvas {
+    margin: 0 auto;
+    max-width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

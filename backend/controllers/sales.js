@@ -1,62 +1,39 @@
 const Order = require('../models/order');
 
-// Controller for fetching all months' sales
-exports.getAllMonthsSales = async (req, res) => {
-    try {
-        const sales = await Order.aggregate([
-            {
-                $unwind: '$orderLine'
-            },
-            {
-                $group: {
-                    _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } }, // Group by year-month
-                    monthlySales: { $sum: { $multiply: ['$orderLine.price', '$orderLine.quantity'] } } // Total sales for each month
-                }
-            },
-            { $sort: { _id: 1 } } // Sort by month
-        ]);
-
-        res.json(sales); // Send the sales data as response
-    } catch (error) {
-        console.error('Error fetching all months sales:', error);
-        res.status(500).json({ message: 'Server Error' });
-    }
-};
-
-// Controller for fetching monthly sales (with date range)
 exports.getMonthlySales = async (req, res) => {
-    const { startDate, endDate } = req.query;
-
-    if (!startDate || !endDate) {
-        return res.status(400).json({ message: 'Start and end dates are required' });
-    }
-
     try {
-        const sales = await Order.aggregate([
-            {
-                $match: {
-                    createdAt: {
-                        $gte: new Date(startDate),
-                        $lte: new Date(endDate)
-                    }
-                }
-            },
-            {
-                $unwind: '$orderLine'
-            },
+        const { startDate, endDate } = req.query;
+
+        // Build filter for optional date range
+        const filter = {};
+        if (startDate) filter.createdAt = { ...filter.createdAt, $gte: new Date(startDate) };
+        if (endDate) {
+            // Add end of day to the endDate
+            const endOfDay = new Date(endDate);
+            endOfDay.setHours(23, 59, 59, 999);
+            filter.createdAt = { ...filter.createdAt, $lte: endOfDay };
+        }
+
+        // Aggregate sales data by month
+        const salesData = await Order.aggregate([
+            { $match: filter },
             {
                 $group: {
-                    _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, // Group by day
-                    dailySales: { $sum: { $multiply: ['$orderLine.price', '$orderLine.quantity'] } } // Total sales for each day
-                }
+                    _id: { $month: '$createdAt' },
+                    totalSales: { $sum: '$totalPrice' },
+                },
             },
-            { $sort: { _id: 1 } } // Sort by day
+            { $sort: { _id: 1 } },
         ]);
 
-        res.json(sales); // Send the sales data as response
+        // Format response for all months (Jan-Dec)
+        const monthlySales = Array(12).fill(0); // Initialize with zeros for each month
+        salesData.forEach(({ _id, totalSales }) => {
+            monthlySales[_id - 1] = totalSales; // Map sales to correct month (1-based to 0-based)
+        });
+
+        res.status(200).json(monthlySales);
     } catch (error) {
-        console.error('Error fetching monthly sales:', error);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: error.message });
     }
 };
-
