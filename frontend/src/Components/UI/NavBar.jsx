@@ -29,13 +29,9 @@ const CustomNavbar = () => {
           <Nav className="ml-auto menu-links">
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="/menu">Menu</Nav.Link>
-            <Nav.Link href="#catering">Catering</Nav.Link>
-            <Nav.Link href="#locations">Locations</Nav.Link>
-            <Nav.Link href="#about">About us</Nav.Link>
-            <Nav.Link href="#jobs">Jobs</Nav.Link>
-            <Nav.Link href="#newsroom">Newsroom</Nav.Link>
-            <Nav.Link href="#giftcards">Gift Cards</Nav.Link>
-            <Nav.Link href="#chat">Quack Chat</Nav.Link>
+            <Nav.Link href="#reviews">Reviews</Nav.Link>
+            <Nav.Link href="#myorders">My Orders</Nav.Link>
+
             
             {/* Order Online Button */}
             <Button className="order-button" onClick={handleOpenLogin}>

@@ -140,36 +140,39 @@ const AddToCartModal = ({ open, handleClose }) => {
         <div className="add-to-cart-container">
           <div className="cart-modal-header">
             <h3>Your Cart</h3>
-            <button onClick={handleClose} className="close-modal-btn">
-              Close
-            </button>
           </div>
 
           <div className="cart-items-list">
-            {cartItems.length === 0 ? (
-              <p>Your cart is empty!</p>
-            ) : (
-              cartItems.map((item, index) => (
-                <div key={index} className="cart-item">
-                  <input
-                    type="checkbox"
-                    checked={!!selectedItems.find((i) => i._id === item._id)}
-                    onChange={() => handleCheckboxChange(item)}
-                  />
-                  <img
-                    src={item.image[0]?.url}
-                    alt={item.name}
-                    className="cart-item-image"
-                  />
-                  <div className="cart-item-details">
-                    <p className="cart-item-name">Product Name: {item.name}</p>
-                    <p className="cart-item-price">Price: P{item.price}</p>
-                    <p className="cart-item-quantity">Quantity: {item.quantity}</p>
-                  </div>
-                </div>
-              ))
-            )}
+  {cartItems.length === 0 ? (
+    <p>Your cart is empty!</p>
+  ) : (
+    cartItems.map((item, index) => (
+      <div key={index} className="cart-item">
+        <input
+          type="checkbox"
+          checked={!!selectedItems.find((i) => i._id === item._id)}
+          onChange={() => handleCheckboxChange(item)}
+        />
+        <img
+          src={(item.images && item.images[0]?.url) || 'default-image.jpg'}
+          alt={item.name || 'Product Image'}
+          className="cart-item-image"
+        />
+        <div className="cart-item-details">
+          <p className="cart-item-name">Product Name: {item.name}</p>
+          <p className="cart-item-price">Price: P{item.price}</p>
+          <p className="cart-item-quantity">Quantity: {item.quantity}</p>
+          <div className="cart-item-actions">
+            <button onClick={() => handleDecrement(item)}>-</button>
+            <button onClick={() => handleIncrement(item)}>+</button>
+            <button onClick={() => handleRemove(item)}>Remove</button>
           </div>
+        </div>
+      </div>
+    ))
+  )}
+</div>
+
 
           {selectedItems.length > 0 && (
             <div className="cart-summary">
@@ -219,6 +222,9 @@ const AddToCartModal = ({ open, handleClose }) => {
               <button onClick={handleCheckout} className="checkout-btn">
                 Proceed to Checkout
               </button>
+              <button onClick={handleClose} className="close-modal-btn">
+              Close
+            </button>
             </div>
           )}
         </div>

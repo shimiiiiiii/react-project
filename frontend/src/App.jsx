@@ -34,7 +34,9 @@ import ProductDataTable from "./Components/Admin/ProductDataTable";
 import ProductDetails from './Components/UI/ProductModal';
 import VarietyDetail from './Components/UI/ProductVarietyDetail'; 
 import Orders from './Components/Admin/OrderStatus';
-
+import MyOrders from './Components/User/MyOrders';
+import ViewOrderDetails from './Components/User/ViewOrderDetails';
+import WriteReview from './Components/User/WriteReview';
 
 function App() {
 
@@ -62,6 +64,9 @@ function App() {
               <Route path="/admin/dashboard" element={<Dashboard />} />
               <Route path="/admin/sales" element={<SalesCharts />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/order/:id" element={<ViewOrderDetails />} />
+              <Route path="/order/:orderId/review" element={<WriteReview />} />
 
           </Routes>
       </Router>

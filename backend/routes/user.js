@@ -15,6 +15,11 @@ const {
     getDetails,
     getUserDetails,
     getMe,
+    getUserProfile,
+    getUserOrders, 
+    verifyUser,
+    getOrderDetails,
+    createReview
     // updateUser,
 } = require('../controllers/user');
 
@@ -31,6 +36,10 @@ router.post('/verify', verifyEmail);
 router.get('/verify/:token', verifyEmail);
 
 router.get('/user/me', isVerified, getMe);
+router.get('/profile', verifyUser, getUserProfile); 
+router.get('/my-orders', verifyUser, getUserOrders);
+router.get('/order/:id', verifyUser, getOrderDetails);
+router.post('/review/create', verifyUser, createReview);
 
 
 // router.get('/admin/users', isVerified, authorizeRoles('admin'), allUsers)

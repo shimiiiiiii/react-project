@@ -11,21 +11,16 @@
   z-index: 9999; /* Ensure it's above other content */
   height: 100vh; /* Full height */
   color : black;
+  font-family: 'Lilita One';
 }
 
 .add-to-cart-container {
-  background-color: white;
+  max-height: 80vh; /* Limits modal height to 80% of the viewport height */
+  overflow-y: auto; /* Enables vertical scrolling if content overflows */
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  width: 80%;
-  max-width: 900px;
-  margin-top: 50px;
-  overflow-y: auto;
-  height: 80vh;
-  display: flex;
-  flex-direction: column;
-}
+  box-sizing: border-box;
+  background-color: white;
+  }
 
 .cart-modal-header {
   display: flex;
@@ -46,14 +41,23 @@
 
 .cart-item {
   display: flex;
-  align-items: center;
-  padding: 20px;
+  align-items: left;
+  padding: 10px; /* Adjusted padding to reduce excess space */
+  gap: 1px; /* Adds space between checkbox and other elements */
   border-bottom: 1px solid #eee;
-  
 }
 
+.cart-item input[type="checkbox"] {
+  width: 16px; /* Set a fixed width */
+  height: 16px; /* Set a fixed height */
+  transform: scale(1); /* Ensure it's scaled to normal size */
+  margin: 0 10px 0 0; /* Adjust spacing as needed */
+  cursor: pointer; /* Add pointer cursor for better UI feedback */
+}
+
+
 .cart-item-image {
-  width: 50px;
+  width: 200px;
   height: 50px;
   object-fit: cover;
   margin-right: 15px;
@@ -88,28 +92,19 @@
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-
 .cart-modal-footer {
-  text-align: center;
+  display: flex;
+  justify-content: space-between; /* Space between the buttons */
   margin-top: 20px;
 }
 
 .cart-modal-footer button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.cart-modal-footer button:hover {
-  background-color: #0056b3;
+  flex: 1; /* Make both buttons equal width */
+  margin: 0 5px; /* Add some space between the buttons */
+  text-align: center;
 }
 
 .close-modal-btn {
   background-color: black;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
+  color: white; /* Ensure text color is white for visibility */
 }

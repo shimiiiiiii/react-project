@@ -1,5 +1,8 @@
 const User = require('../models/user');
+const Order = require('../models/order');
+const Product = require('../models/product');
 const sendEmail = require('../utils/sendEmail');
+const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
 const cloudinary = require('cloudinary');
 
@@ -92,45 +95,6 @@ exports.login = async (req, res, next) => {
         return res.status(500).json({ error: err.message });
     }
 };
-
-// // Social Login
-// exports.socialLogin = async (req, res) => {
-//     const { idToken } = req.body;
-
-//     if (!idToken) {
-//         return res.status(400).json({ error: "ID Token is required" });
-//     }
-
-//     try {
-//         // Verify the Firebase ID token
-//         const decodedToken = await admin.auth().verifyIdToken(idToken);
-//         const { email, name, picture } = decodedToken;
-
-//         if (!email) {
-//             return res.status(400).json({ error: "Invalid token: email not found" });
-//         }
-
-//         // Check if the user exists in your database
-//         let user = await User.findOne({ email });
-
-//         if (!user) {
-//             // If user doesn't exist, reject or create a new account
-//             return res.status(401).json({ error: "User does not exist. Please sign up first." });
-//         }
-
-//         // Generate your app's token (JWT) using MongoDB `_id`
-//         const token = user.getJwtToken();
-
-//         return res.status(200).json({
-//             success: true,
-//             user,
-//             token,
-//         });
-//     } catch (error) {
-//         console.error("Error verifying token:", error);
-//         return res.status(500).json({ error: "Internal server error" });
-//     }
-// };
 
 // Get User Profile
 exports.getProfile = async (req, res, next) => {
@@ -416,4 +380,138 @@ exports.getMe = async (req, res) => {
         console.error(error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
+};
+
+
+exports.getUserProfile = async (req, res) => {
+    try {
+        const userId = req.user.id; // Assuming user ID is available via middleware
+        const user = await User.findById(userId).select('-password'); // Exclude password field
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json({ user });
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+};
+
+// Get user's orders
+exports.getUserOrders = async (req, res) => {
+    try {
+        const userId = req.user.id; // Assuming user ID is available via middleware
+        const orders = await Order.find({ user: userId }).sort('-createdAt'); // Fetch user orders
+        if (!orders) {
+            return res.status(404).json({ message: 'No orders found for this user' });
+        }
+        res.status(200).json({ orders });
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        res.status(500).json({ message: 'Server error. Please try again later.' });
+    }
+};
+
+exports.verifyUser = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ message: "Access denied. No token provided." });
+    }
+
+    const token = authHeader.split(" ")[1];
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+        if (!user.isVerified) {
+            return res.status(403).json({ message: "User email is not verified." });
+        }
+        req.user = user; // Attach the user to the request
+        next();
+    } catch (error) {
+        console.error("Token Verification Error:", error);
+        return res.status(401).json({ message: "Invalid or expired token." });
+    }
+};
+
+exports.getOrderDetails = async (req, res) => {
+    try {
+        const { id } = req.params; // Extract order ID from the request params
+        const order = await Order.findById(req.params.id).populate({
+            path: 'orderLine.product',
+            select: 'name price images description', // Include images explicitly
+        })
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found.' });
+        }
+
+        // Send back relevant order details
+        res.status(200).json({
+            success: true,
+            order: {
+                id: order._id,
+                orderLine: order.orderLine.map(item => ({
+                    productName: item.product.name,
+                    productImage: item.product.image,
+                    productImage: item.product?.images[0]?.url,
+                    description: item.product.description,
+                    price: item.price,
+                    quantity: item.quantity,
+                })),
+                shippingFee: order.shippingFee,
+                subtotal: order.orderLine.reduce((sum, item) => sum + item.price * item.quantity, 0),
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching order details:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch order details.' });
+    }
+};
+
+exports.createReview = async (req, res) => {
+  const { orderId, productId, rating, comment } = req.body;
+
+  try {
+    const order = await Order.findById(orderId);
+    const product = await Product.findById(productId);
+
+    // Ensure the order belongs to the logged-in user
+    if (order.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'You cannot review this order.' });
+    }
+
+    // Check if the product is in the order
+    const isProductInOrder = order.orderLine.some(item => item.product.toString() === productId);
+    if (!isProductInOrder) {
+      return res.status(400).json({ message: 'Product not found in this order.' });
+    }
+
+    // Check if the user has already reviewed this product
+    const existingReview = await Review.findOne({ user: req.user.id, product: productId });
+    if (existingReview) {
+      return res.status(400).json({ message: 'You have already reviewed this product.' });
+    }
+
+    // Create the review
+    const newReview = new Review({
+      user: req.user.id,
+      product: productId,
+      order: orderId,
+      rating,
+      comment,
+    });
+
+    await newReview.save();
+
+    res.status(201).json({
+      message: 'Review submitted successfully.',
+      review: newReview,
+    });
+  } catch (error) {
+    console.error('Error creating review:', error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
 };
