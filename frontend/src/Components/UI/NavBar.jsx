@@ -5,10 +5,13 @@ import '../CSS/Navbar.css';
 import itachiLogo from '../images/itachi.jpg';
 import Login from '../User/Login'; 
 import AddToCartModal from '../UI/AddtoCartModal'; // Ensure AddToCartModal is imported correctly
+import { FaUser } from 'react-icons/fa';
+import EditProfile from '../User/EditProfile'; // Ensure EditProfile is imported correctly
 
 const CustomNavbar = () => {
   const [open, setOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false); // State for cart modal
+  const [profileOpen, setProfileOpen] = useState(false); // State for profile modal
 
   // Open/Close logic for Login Modal
   const handleOpenLogin = () => setOpen(true);
@@ -17,6 +20,17 @@ const CustomNavbar = () => {
   // Open/Close logic for AddToCart Modal
   const handleOpenCart = () => setCartOpen(true);
   const handleCloseCart = () => setCartOpen(false);
+
+  // Open/Close logic for EditProfile Modal
+  const handleOpenUser = () => setProfileOpen(true);
+  const handleCloseUser = () => setProfileOpen(false);
+
+  // Handle logout
+  const handleLogout = () => {
+    // Add your logout logic here, such as clearing session or tokens
+    console.log('Logging out...');
+    // Optionally, clear tokens or redirect to login page
+  };
 
   return (
     <>
@@ -30,9 +44,8 @@ const CustomNavbar = () => {
             <Nav.Link href="/">Home</Nav.Link>
             <Nav.Link href="/menu">Menu</Nav.Link>
             <Nav.Link href="#reviews">Reviews</Nav.Link>
-            <Nav.Link href="#myorders">My Orders</Nav.Link>
+            <Nav.Link href="/my-orders">My Orders</Nav.Link>
 
-            
             {/* Order Online Button */}
             <Button className="order-button" onClick={handleOpenLogin}>
               Order Online!
@@ -42,11 +55,19 @@ const CustomNavbar = () => {
             <Button className="addtocart-button" onClick={handleOpenCart}>
               🛒
             </Button>
+
+            {/* User Icon Button */}
+            <Button className="user-icon-button" onClick={handleOpenUser}> {/* Open Edit Profile Modal */}
+              <FaUser />
+            </Button>
+
+            {/* Logout Button */}
+            {/* <Button className="logout-button" onClick={handleLogout}>Logout</Button> */}
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
-      {/* Login Modal */}
+      Login Modal
       <Modal open={open} onClose={handleCloseLogin}>
         <Box
           sx={{
@@ -65,8 +86,17 @@ const CustomNavbar = () => {
         </Box>
       </Modal>
 
+      {/* <Modal open={profileOpen} onClose={handleCloseLogin}>
+      <EditProfile handleClose={handleCloseLogin} /> */}
+
       {/* Add to Cart Modal */}
       <AddToCartModal open={cartOpen} handleClose={handleCloseCart} />
+
+      {/* Edit Profile Modal */}
+      <Modal open={profileOpen} onClose={handleCloseUser}>
+          <EditProfile handleClose={handleCloseUser} />
+          
+      </Modal>
     </>
   );
 };

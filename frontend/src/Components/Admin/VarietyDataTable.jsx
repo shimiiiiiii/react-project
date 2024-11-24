@@ -7,6 +7,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import NewVariety from './NewVariety';
 import EditVariety from './EditVariety';
+import Dashboard  from './Dashboard';
 
 const VarietyDataTable = () => {
     const [varieties, setVarieties] = useState([]);
@@ -114,6 +115,7 @@ const VarietyDataTable = () => {
     }));
 
     return (
+        <Dashboard>
         <Box sx={{ height: 500, width: '100%' }}>
             <Typography variant="h4" gutterBottom>Varieties</Typography>
             <Button variant="contained" color="primary" startIcon={<Add />} onClick={handleOpenNew}>
@@ -159,6 +161,7 @@ const VarietyDataTable = () => {
             </Dialog>
 
         </Box>
+        </Dashboard>
     );
 };
 

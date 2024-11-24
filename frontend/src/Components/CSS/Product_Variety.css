@@ -1,110 +1,125 @@
 .product-variety-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 2rem;
-    margin-bottom: 50px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  margin-bottom: 50px;
+  font-family: 'Sour Gummy','Ga Maamli', sans-serif;
+}
 
-  
-  
-  .product-card {
-    background-color: white;
-    border-radius: 15px; 
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 180px; 
-    text-align: center;
-    padding: 1.5rem;
-    position: relative;
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .product-image {
-    width: 100px; 
-    height: 100px;
-    object-fit: contain;
-    margin-bottom: 1rem;
-  }
-  
-  .product-title {
-    font-size: 1rem;
-    color: #009fe3;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-  }
-  
-  .view-menu-link {
-    font-size: 0.9rem;
-    color: #333;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: auto; 
-    gap: 0.3rem;
-  }
-  
-  .arrow {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    background-color: #f2f2f2;
-    border-radius: 50%;
-    color: #333;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .view-menu-link:hover .arrow {
-    color: #ff4b8b;
-  }
 
-  .products-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); 
-    gap: 1.5rem; 
-    width: 100%;
-  }
-  
-  .variety-group {
-    margin-bottom: 2rem; 
-  }
-  
-  .variety-title {
-    font-size: 1.5rem;
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #333;
-  }
-  
-  .product-card {
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-    width: 180px;
-    text-align: center;
-    padding: 1.5rem;
-    position: relative;
-    transition: transform 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .product-card:hover {
-    transform: translateY(-5px);
-  }
-  
 
-  
+.product-card {
+  background-color: white;
+  border-radius: 15px; 
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 180px; 
+  text-align: center;
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-image {
+  width: 100px; 
+  height: 100px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+.product-title {
+  font-size: 1rem;
+  color: #009fe3;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.view-menu-link {
+  font-size: 0.9rem;
+  color: #333;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto; 
+  gap: 0.3rem;
+}
+
+.arrow {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background-color: #f2f2f2;
+  border-radius: 50%;
+  color: #333;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-menu-link:hover .arrow {
+  color: #ff4b8b;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 1.5rem; 
+  width: 100%;
+}
+
+.variety-group {
+  margin-bottom: 2rem; 
+}
+
+.variety-title {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.product-card {
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 180px;
+  text-align: center;
+  padding: 1.5rem;
+  position: relative;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+
+.product-variety-title{
+  font-size: 2.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #0086d1;
+  font-family: 'Lilita One';
+}
+
+.product-variety-subtitle {
+  font-size: 1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #333;
+  font-family: 'Sour Gummy';
+}

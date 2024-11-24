@@ -1,0 +1,63 @@
+/* ProductDataTable.css */
+.product-table-container {
+    color: black !important;
+}
+
+.product-table-container * {
+    color: black !important;
+}
+
+.MuiTypography-root {
+    color: black !important;
+}
+
+.MuiButton-root {
+    color: black !important;
+}
+
+.MuiIconButton-root {
+    color: black !important;
+}
+
+.MuiTableCell-root {
+    color: black !important;
+}
+
+.MuiDataGrid-root {
+    background-color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px !important;
+    border: none !important;
+}
+
+.MuiDataGrid-columnHeaders {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.MuiDataGrid-cell {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.MuiDataGrid-row:hover {
+    background-color: #f8f9fa !important;
+}
+
+.MuiButton-contained {
+    text-transform: none !important;
+    padding: 8px 16px !important;
+}
+
+.MuiDataGrid-columnHeaderTitle {
+    font-weight: bold !important;
+    color: #333;
+}
+
+.MuiIconButton-root {
+    padding: 8px !important;
+}
+
+.MuiDataGrid-footerContainer {
+    border-top: 1px solid #ddd !important;
+}
+

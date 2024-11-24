@@ -1,4 +1,7 @@
+
+
 .custom-navbar {
+  font-family: 'Sour Gummy', sans-serif; /* Apply the font to the entire navbar */
   position: fixed;
   top: 0;
   left: 0;

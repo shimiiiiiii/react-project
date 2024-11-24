@@ -20,6 +20,8 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard';
 import { Link, Routes, Route, useNavigate } from 'react-router-dom';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import CategoryIcon from '@mui/icons-material/Category';
 
 import OrderStatus from './OrderStatus';
 
@@ -106,8 +108,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 const pages = [
     {
-        label: 'Dashboard',
-        route: '/dashboard',
+        label: 'Charts',
+        route: '/charts',
         icon: <SpaceDashboardIcon />,
     },
     {
@@ -115,6 +117,17 @@ const pages = [
         route: '/orders',
         icon: <MailIcon />,
     },
+    {
+        label: 'Products',
+        route: '/admin/products',
+        icon: <TableChartIcon />,
+    },
+    {
+        label: 'Variety',
+        route: '/admin/varieties',
+        icon: <CategoryIcon />,
+    },
+    
 ]
 
 

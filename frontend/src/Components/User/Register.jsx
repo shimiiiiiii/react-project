@@ -44,7 +44,8 @@ const Register = () => {
 
             const { data } = await axios.post(`${import.meta.env.VITE_API}/register`, userData, config);
             setLoading(false);
-            navigate('/login');
+            navigate("/");
+            window.location.reload(); // Full page reload
         } catch (error) {
             setLoading(false);
             setError(error.message);

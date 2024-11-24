@@ -20,7 +20,7 @@ body {
   max-width: 100%;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Lilita One','Ga Maamli', sans-serif;
   margin-bottom: 30px;
 }
 
@@ -31,7 +31,7 @@ body {
 }
 
 .text-overlay h1 {
-  font-family: 'YourTargetFont', sans-serif;
+  font-family: 'Lilita One', sans-serif;
   font-size: 3rem;
   font-weight: bold;
   margin-bottom: 0.5rem;

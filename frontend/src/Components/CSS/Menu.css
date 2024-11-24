@@ -10,7 +10,7 @@
     max-width: 100%;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+    font-family: 'Lilita One',Arial, sans-serif;
 }
 
     .banner {
@@ -20,6 +20,7 @@
         padding: 100px 0;
         text-align: center;
         color: white;
+
     }
     
     .banner-title {
@@ -91,6 +92,7 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        font-style: 'Sour Gummy';
     }
     
     .view-all-btn:hover {

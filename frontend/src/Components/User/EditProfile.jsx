@@ -50,10 +50,28 @@ const EditProfile = () => {
         try {
             const { data } = await axios.put(`${import.meta.env.VITE_API}/profile/update`, userData, config);
             toast.success('Profile updated', { position: 'bottom-right' });
-            navigate('/profile', { replace: true });
+            navigate('/', { replace: true });
         } catch (error) {
             toast.error('Error updating profile', { position: 'bottom-right' });
         }
+    };
+
+    const logout = () => {
+        // Clear the token, firebase key, and user key from sessionStorage or localStorage
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('firebase');
+        sessionStorage.removeItem('user');
+        
+        // You can also use localStorage if needed
+        // localStorage.removeItem('token');
+        // localStorage.removeItem('firebase');
+        // localStorage.removeItem('user');
+    
+        toast.success('Logged out successfully', { position: 'bottom-right' });
+    
+        // Perform a full page reload and redirect to the home page
+        window.location.href = '/'; // Redirect to the home page
+        window.location.reload(); // Reload the page to ensure the session is cleared
     };
 
     useEffect(() => {
@@ -62,6 +80,7 @@ const EditProfile = () => {
 
     const submitHandler = (e) => {
         e.preventDefault();
+        setLoading(true); // Set loading to true when the submit button is clicked
         const formData = new FormData();
         formData.set('name', name);
         formData.set('photo', photo);
@@ -142,6 +161,16 @@ const EditProfile = () => {
                         sx={{ mt: 2 }}
                     >
                         {loading ? <CircularProgress size={24} /> : 'Update'}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        color="secondary"
+                        fullWidth
+                        sx={{ mt: 2 }}
+                        onClick={logout}
+                    >
+                        Log Out
                     </Button>
                 </Box>
             </Container>

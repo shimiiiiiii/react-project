@@ -89,13 +89,19 @@ const updateOrderStatus = async (orderId, newStatus) => {
       key: "id",
     },
     {
-      title: "Name",
+      title: " Product Name",
       dataIndex: "orderLine",
       key: "name",
       render: (orderLine) => (
         <span>{orderLine.map((item) => item.name).join(", ")}</span>
       ),
     },
+    {
+        title: "User Name",
+        dataIndex: "user",
+        key: "user",
+        render: (user) => user.name,
+      },
     {
       title: "Status",
       dataIndex: "orderStatus",

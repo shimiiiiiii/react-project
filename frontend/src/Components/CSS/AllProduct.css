@@ -9,6 +9,7 @@
     display: fixed;
     flex-direction: column;
     gap: 20px;
+    font-family: 'Lilita One';
   }
   
   .filter-header {
@@ -24,6 +25,7 @@
   
   .filter-title {
     font-size: 1.2rem;
+    font-family: 'Sour Gummy', cursive;
     margin-bottom: 8px;
     color: #444;
   }
@@ -49,6 +51,21 @@
     border-radius: 4px;
     padding: 4px;
     background-color: #f9f9f9;
+  }
+
+  .section-title {
+    font-size: 50ppx;
+    color: #0086d1;
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'Lilita One';
+  }
+
+  .section-subtitle {
+    font-size: 1.2rem;
+    text-align: center;
+    color: black;
+    font-family: 'Sour Gummy','Lilita One';
   }
   
  

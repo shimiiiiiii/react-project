@@ -350,8 +350,7 @@ exports.createOrder = async (req, res) => {
 exports.getOrders = async (req, res) => {
     try {
         // Fetch orders from the database (you can adjust the query as needed)
-        const orders = await Order.find();  // This fetches all orders. Modify the query if you need filters
-
+        const orders = await Order.find().populate('user', 'name'); // Populates user and only retrieves the 'name' field
         // Check if orders are found. 'orders' will never be null because an empty array is returned if no orders are found.
         if (orders.length === 0) {
             return res.status(404).json({ message: 'No orders found' });
@@ -368,6 +367,7 @@ exports.getOrders = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
 // Set up Nodemailer transport
 const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'sandbox.smtp.mailtrap.io',
@@ -478,6 +478,14 @@ exports.updateOrderStatus = async (req, res) => {
             price: item.product.price,
             quantity: item.quantity
         }));
+        
+        // FCM NOTIF
+        notify.sendMessage({
+            user: req.user,
+            title: 'Order Updated',
+            body: `Confirmed Order ID: ${order._id}`,
+            tokens: [order.user.notificationToken]
+        });
 
         // Calculate the total price
         const totalPrice = orderItems.reduce((total, item) => total + item.price * item.quantity, 0);

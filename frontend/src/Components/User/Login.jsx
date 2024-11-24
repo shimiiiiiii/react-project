@@ -32,7 +32,6 @@ const Login = () => {
         password: Yup.string().required('Password is required'),
     });
 
-    // Login handler for email/password
     const login = async (email, password) => {
         try {
             const config = {
@@ -40,14 +39,26 @@ const Login = () => {
                     'Content-Type': 'application/json'
                 }
             }
-            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email, password }, config)
-            console.log(data)
-            authenticate(data, () => navigate("/"))
+            const { data } = await axios.post(`${import.meta.env.VITE_API}/login`, { email, password }, config);
+            console.log(data);
+    
+            // Assuming data contains user info with a role property
+            const role = data?.user?.role;  // Replace with the correct path if necessary
             
+            if (role === 'admin') {
+                // Redirect to the admin dashboard
+                authenticate(data, () => navigate("/charts"));
+            } else {
+                // Redirect to the home page for regular users and reload the page
+                authenticate(data, () => {
+                    navigate("/");
+                    window.location.reload(); // Full page reload
+                });
+            }
         } catch (error) {
-            toast.error("invalid user or password", {
+            toast.error("Invalid email or password", {
                 position: "bottom-right"
-            })
+            });
         }
     }
     

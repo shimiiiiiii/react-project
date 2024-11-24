@@ -25,19 +25,22 @@ const ProductVariety = () => {
   if (loading) return <p>Loading varieties...</p>;
 
   return (
-    <div className="product-variety-container">
-      {varieties.map((variety) => (
-        <div className="product-card" key={variety._id}>
-          <img src={variety.images[0]?.url} alt={variety.name} className="product-image" />
-          <h3 className="product-title">{variety.name}</h3>
-          <p className="product-description">{variety.description}</p>
-          <Link to={`/products/variety/${variety._id}`} className="view-menu-link">
-            View Menu <span className="arrow">→</span>
-          </Link>
-        </div>
-      ))}
-       
-    </div>
+    <>
+      <h1 className="product-variety-title">Product Variety</h1>
+      <h3 className="product-variety-subtitle">Choose from our wide selection of products</h3>
+      <div className="product-variety-container">
+        {varieties.map((variety) => (
+          <div className="product-card" key={variety._id}>
+            <img src={variety.images?.[0]?.url} alt={variety.name} className="product-image" />
+            <h3 className="product-title">{variety.name}</h3>
+            <p className="product-description">{variety.description}</p>
+            <Link to={`/products/variety/${variety._id}`} className="view-menu-link">
+              View Menu <span className="arrow">→</span>
+            </Link>
+          </div>
+        ))}
+      </div>
+    </>
   );
 };
 
