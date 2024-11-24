@@ -24,6 +24,7 @@ import EditProfile from './Components/User/EditProfile';
 // import NewVariety from './Components/Admin/NewVariety';
 // import EditVariety from './Components/Admin/EditVariety';
 import Dashboard from './Components/Admin/Dashboard';
+import SalesCharts from './Components/Admin/SalesCharts';
 
 // ADMIN DATATABLES
 import VarietyDataTable from "./Components/Admin/VarietyDataTable";
@@ -59,6 +60,7 @@ function App() {
               <Route path="/admin/variety/new" element={<NewVariety />} />
               <Route path="/admin/variety/:id" element={<EditVariety />} /> */}
               <Route path="/admin/dashboard" element={<Dashboard />} />
+              <Route path="/admin/sales" element={<SalesCharts />} />
               <Route path="/orders" element={<Orders />} />
 
           </Routes>

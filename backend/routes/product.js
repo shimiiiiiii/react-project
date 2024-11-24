@@ -25,7 +25,6 @@ router.get('/products-by-variety', getVarieties);
 router.get('/products/variety/:id', VarietyDetail);
 router.get('/products/menu', getProductMenu);
 router.get('/admin/products', getAdminProducts);
-router.get('/suppliers', getSuppliers); 
 router.post('/admin/product/new', isVerified, upload.array('images', 10), newProduct);
 router.route('/admin/product/:id')
     .put(isVerified, authorizeRoles('admin'), upload.array('images', 10), updateProduct)

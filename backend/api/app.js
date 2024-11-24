@@ -9,6 +9,7 @@ const products = require('../routes/product');
 const varieties = require('../routes/variety');
 const faqs = require('../routes/faq');
 const cart = require('../routes/cart');
+const salesRoutes = require('../routes/sales'); 
 
 app.use(cors({
     origin: '*',
@@ -26,6 +27,7 @@ app.use('/api', products);
 app.use('/api', varieties);
 app.use('/api', faqs);
 app.use('/api', cart);
+app.use('/api/sales', salesRoutes); 
 
 
 

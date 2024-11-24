@@ -12,9 +12,7 @@ import {
     signInWithEmailAndPassword, 
     GoogleAuthProvider, 
     FacebookAuthProvider, 
-    signInWithPopup,
-    signInWithRedirect, 
-    getRedirectResult 
+    signInWithPopup
 } from '../../utils/firebase';
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
