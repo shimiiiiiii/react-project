@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, 
+    signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 
-// Replace with your Firebase project’s configuration
 const firebaseConfig = {
     apiKey: "AIzaSyCokZWiwqSD1LIqHm-S8CsqQrpN4W5YTKY",
     authDomain: "reactjsproject-7064a.firebaseapp.com",
@@ -11,8 +11,9 @@ const firebaseConfig = {
     appId: "1:464783054486:web:b5ce3d98a9d52bfaf514b7"
 };
 
-// Initialize Firebase and export authentication functions
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword };
+export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+    signInWithPopup, GoogleAuthProvider, FacebookAuthProvider,
+ };

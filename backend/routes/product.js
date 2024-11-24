@@ -9,13 +9,13 @@ const {
     newProduct,
     updateProduct,
     deleteProduct,
+    bulkDelete,
     getVarieties,
     getProductMenu,
     VarietyDetail,
     getAllProducts,
 } = require('../controllers/product');
 
-const { getSuppliers } = require('../controllers/supplier');
 const { isVerified, authorizeRoles } = require('../middlewares/auth');
 
 router.get('/products', getProducts);
@@ -27,7 +27,9 @@ router.get('/products/menu', getProductMenu);
 router.get('/admin/products', getAdminProducts);
 router.get('/suppliers', getSuppliers); 
 router.post('/admin/product/new', isVerified, upload.array('images', 10), newProduct);
-router.route('/admin/product/:id', isVerified).put(updateProduct).delete(deleteProduct); 
-
+router.route('/admin/product/:id')
+    .put(isVerified, authorizeRoles('admin'), upload.array('images', 10), updateProduct)
+    .delete(isVerified, authorizeRoles('admin'), deleteProduct);
+router.post('/admin/product/bulk-delete', isVerified, authorizeRoles('admin'), bulkDelete);
 
 module.exports = router;

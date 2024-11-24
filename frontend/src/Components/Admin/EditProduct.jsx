@@ -1,234 +1,254 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import Meta from '../Layout/Meta';
-// import SideBar from './SideBar';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { TextField, Button, Box, CircularProgress, Typography, MenuItem } from '@mui/material';
 import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { getToken } from '../../utils/helpers';
 
-const EditProduct = () => {
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState(0);
-    const [description, setDescription] = useState('');
-    const [variety, setVariety] = useState(''); 
-    const [stock, setStock] = useState(0);
-    const [supplier, setSupplier] = useState(''); 
-    const [images, setImages] = useState([]);
+const EditProduct = ({ product, onClose, onUpdate }) => {
+    const [varietyList, setVarietyList] = useState([]);
     const [oldImages, setOldImages] = useState([]);
     const [imagesPreview, setImagesPreview] = useState([]);
-    const [error, setError] = useState('');
-    const [product, setProduct] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [updateError, setUpdateError] = useState('');
-    const [isUpdated, setIsUpdated] = useState(false);
-
-    const varieties = ['Classic', 'Premium', 'Supreme', 'Munchkins', 'Other'];
-
-    const [suppliers, setSuppliers] = useState([]);
-    
-    let { id } = useParams();
-    let navigate = useNavigate();
-
-    const errMsg = (message = '') => toast.error(message, { position: 'bottom-left' });
-    const successMsg = (message = '') => toast.success(message, { position: 'bottom-right' });
-
-    const getProductDetails = async (id) => {
-        try {
-            const { data } = await axios.get(`http://localhost:4000/api/product/${id}`);
-            setProduct(data.product);
-            setLoading(false);
-        } catch (error) {
-            setError(error.response.data.message);
-        }
-    };
-
-    const getSuppliers = async () => {
-        try {
-            const { data } = await axios.get(`http://localhost:4000/api/suppliers`);
-            setSuppliers(data.suppliers);
-        } catch (error) {
-            setError(error.response.data.message);
-        }
-    };
-
-    const updateProduct = async (id, productData) => {
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
-                }
-            };
-            const { data } = await axios.put(`http://localhost:4000/api/admin/product/${id}`, productData, config);
-            setIsUpdated(data.success);
-        } catch (error) {
-            setUpdateError(error.response.data.message);
-        }
-    };
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (product && product._id !== id) {
-            getProductDetails(id);
-        } else {
-            setName(product.name);
-            setPrice(product.price);
-            setDescription(product.description);
-            setVariety(product.variety);
-            setSupplier(product.supplier);
-            setStock(product.stock);
-            setOldImages(product.images);
-        }
-        
-        if (error) {
-            errMsg(error);
-        }
-        
-        if (updateError) {
-            errMsg(updateError);
-        }
-        
-        if (isUpdated) {
-            navigate('/admin/products');
-            successMsg('Product updated successfully');
-        }
-    }, [error, isUpdated, updateError, product, id]);
+        const fetchVarieties = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${getToken()}`,
+                    },
+                };
+                const { data } = await axios.get(`${import.meta.env.VITE_API}/varieties`, config);
+                setVarietyList(data.varieties || []);
+            } catch (error) {
+                toast.error('Failed to fetch varieties');
+            }
+        };
+        fetchVarieties();
+    }, []);
 
-    const submitHandler = (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.set('name', name);
-        formData.set('price', price);
-        formData.set('description', description);
-        formData.set('variety', variety); 
-        formData.set('stock', stock);
-        formData.set('supplier', supplier); 
-        images.forEach(image => {
-            formData.append('images', image);
-        });
-        updateProduct(product._id, formData);
-    };
+    useEffect(() => {
+        if (product) {
+            setOldImages(product.images || []);
+        }
+    }, [product]);
 
-    const onChange = e => {
+    const validationSchema = Yup.object().shape({
+        name: Yup.string().required('Product name is required'),
+        price: Yup.number().required('Price is required').min(1, 'Price must be greater than 0'),
+        description: Yup.string().required('Description is required'),
+        variety: Yup.string().required('Variety is required'),
+        stock: Yup.number().required('Stock is required').min(1, 'Stock must be greater than 0'),
+    });
+
+    const handleFileChange = (e, setFieldValue) => {
         const files = Array.from(e.target.files);
         setImagesPreview([]);
         setImages([]);
-        setOldImages([]);
-        
-        files.forEach(file => {
+
+        files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = () => {
                 if (reader.readyState === 2) {
-                    setImagesPreview(oldArray => [...oldArray, reader.result]);
-                    setImages(oldArray => [...oldArray, reader.result]);
+                    setImagesPreview((prev) => [...prev, reader.result]);
+                    setImages((prev) => [...prev, reader.result]);
+                    setFieldValue('images', [...images, reader.result]);
                 }
             };
             reader.readAsDataURL(file);
         });
     };
 
-    useEffect(() => {
-        getSuppliers();
-    }, []);
+    const handleSubmit = async (values) => {
+        if (!images.length && !oldImages.length) {
+            toast.error('At least one image is required');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.set('name', values.name);
+        formData.set('price', values.price);
+        formData.set('description', values.description);
+        formData.set('variety', values.variety);
+        formData.set('stock', values.stock);
+        images.forEach((image) => formData.append('images', image));
+
+        try {
+            setLoading(true);
+
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${getToken()}`,
+                },
+            };
+
+            const { data } = await axios.put(`${import.meta.env.VITE_API}/admin/product/${product.id}`, formData, config);
+            
+            if (data.success) {
+                toast.success('Product updated successfully!');
+                if (onUpdate) onUpdate(data.updatedProduct);
+                if (onClose) onClose();
+            } else {
+                toast.error(data.message || 'Failed to update product');
+            }
+        } catch (error) {
+            // console.log(error.response?.data?.message); 
+            // toast.error(error.response?.data?.message || 'An error occurred');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
-        <>
-            <Meta title={'Update Product'} />
-            <div className="row">
-                <div className="col-12 col-md-2">
-                    {/* <SideBar /> */}
-                </div>
-                <div className="col-12 col-md-10">
-                    <div className="wrapper my-5">
-                        <form className="shadow-lg" onSubmit={submitHandler} encType='multipart/form-data'>
-                            <h1 className="mb-4">Update Product</h1>
-                            <div className="form-group">
-                                <label htmlFor="name_field">Name</label>
-                                <input
-                                    type="text"
-                                    id="name_field"
-                                    className="form-control"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="price_field">Price</label>
-                                <input
-                                    type="text"
-                                    id="price_field"
-                                    className="form-control"
-                                    value={price}
-                                    onChange={(e) => setPrice(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="description_field">Description</label>
-                                <textarea className="form-control" id="description_field" rows="8" value={description} onChange={(e) => setDescription(e.target.value)}></textarea>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="variety_field">Variety</label>
-                                <select className="form-control" id="variety_field" value={variety} onChange={(e) => setVariety(e.target.value)}>
-                                    {varieties.map(variety => (
-                                        <option key={variety} value={variety}>{variety}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="stock_field">Stock</label>
-                                <input
-                                    type="number"
-                                    id="stock_field"
-                                    className="form-control"
-                                    value={stock}
-                                    onChange={(e) => setStock(e.target.value)}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="supplier_field">Supplier</label>
-                                <select className="form-control" id="supplier_field" value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-                                    <option value="">Select Supplier</option>
-                                    {suppliers.map(supplier => (
-                                        <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className='form-group'>
-                                <label>Images</label>
-                                <div className='custom-file'>
-                                    <input
-                                        type='file'
-                                        name='images'
-                                        className='custom-file-input'
-                                        id='customFile'
-                                        onChange={onChange}
-                                        multiple
+        <Formik
+            initialValues={{
+                name: product?.name || '',
+                price: product?.price || '',
+                description: product?.description || '',
+                variety: product?.variety || '',
+                stock: product?.stock || '',
+                images: [],
+            }}
+            validationSchema={validationSchema}
+            onSubmit={handleSubmit}
+        >
+            {({ errors, touched, setFieldValue, isSubmitting }) => (
+                <Form>
+                    <Typography variant="h4" gutterBottom>
+                        Edit Product
+                    </Typography>
+                    <Field
+                        name="name"
+                        as={TextField}
+                        label="Product Name"
+                        fullWidth
+                        margin="normal"
+                        disabled={loading}
+                        error={Boolean(touched.name && errors.name)}
+                        helperText={<ErrorMessage name="name" />} 
+                    />
+                    <Field
+                        name="price"
+                        as={TextField}
+                        label="Price"
+                        fullWidth
+                        margin="normal"
+                        type="number"
+                        disabled={loading}
+                        error={Boolean(touched.price && errors.price)}
+                        helperText={<ErrorMessage name="price" />} 
+                    />
+                    <Field
+                        name="description"
+                        as={TextField}
+                        label="Description"
+                        fullWidth
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        disabled={loading}
+                        error={Boolean(touched.description && errors.description)}
+                        helperText={<ErrorMessage name="description" />} 
+                    />
+                    <Field
+                        name="variety"
+                        as={TextField}
+                        label="Variety"
+                        select
+                        fullWidth
+                        margin="normal"
+                        disabled={loading}
+                        error={Boolean(touched.variety && errors.variety)}
+                        helperText={<ErrorMessage name="variety" />} 
+                    >
+                        {varietyList.map((v) => (
+                            <MenuItem key={v._id} value={v._id}>
+                                {v.name}
+                            </MenuItem>
+                        ))}
+                    </Field>
+                    <Field
+                        name="stock"
+                        as={TextField}
+                        label="Stock"
+                        fullWidth
+                        margin="normal"
+                        type="number"
+                        disabled={loading}
+                        error={Boolean(touched.stock && errors.stock)}
+                        helperText={<ErrorMessage name="stock" />} 
+                    />
+                    <Button
+                        variant="contained"
+                        component="label"
+                        sx={{ marginTop: 2 }}
+                        disabled={loading}
+                    >
+                        Upload New Images
+                        <input
+                            type="file"
+                            hidden
+                            onChange={(e) => handleFileChange(e, setFieldValue)}
+                            multiple
+                        />
+                    </Button>
+                    {oldImages.length > 0 && (
+                        <Box mt={2}>
+                            <Typography variant="subtitle1">Existing Images:</Typography>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                {oldImages.map((img, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={img.url}
+                                        alt="Existing"
+                                        style={{
+                                            width: 70,
+                                            height: 70,
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
+                                        }}
                                     />
-                                    <label className='custom-file-label' htmlFor='customFile'>
-                                        Choose Images
-                                    </label>
-                                </div>
-                                {oldImages && oldImages.map(img => (
-                                    <img key={img.public_id} src={img.url} alt={img.url} className="mt-3 mr-2" width="55" height="52" />
                                 ))}
-                                {imagesPreview.map(img => (
-                                    <img src={img} key={img} alt="Images Preview" className="mt-3 mr-2" width="55" height="52" />
+                            </Box>
+                        </Box>
+                    )}
+                    {imagesPreview.length > 0 && (
+                        <Box mt={2}>
+                            <Typography variant="subtitle1">Image Previews:</Typography>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                {imagesPreview.map((img, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={img}
+                                        alt="Preview"
+                                        style={{
+                                            width: 70,
+                                            height: 70,
+                                            objectFit: 'cover',
+                                            borderRadius: '4px',
+                                        }}
+                                    />
                                 ))}
-                            </div>
-                            <button
-                                id="login_button"
-                                type="submit"
-                                className="btn btn-block py-3"
-                                disabled={loading ? true : false}
-                            >
-                                UPDATE
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </>
+                            </Box>
+                        </Box>
+                    )}
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        sx={{ marginTop: 3 }}
+                        disabled={loading || isSubmitting}
+                    >
+                        {loading ? <CircularProgress size={24} /> : 'Update Product'}
+                    </Button>
+                </Form>
+            )}
+        </Formik>
     );
-}
+};
 
 export default EditProduct;

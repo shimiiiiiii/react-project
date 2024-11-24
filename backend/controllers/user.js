@@ -93,6 +93,45 @@ exports.login = async (req, res, next) => {
     }
 };
 
+// Social Login
+exports.socialLogin = async (req, res) => {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+        return res.status(400).json({ error: "ID Token is required" });
+    }
+
+    try {
+        // Verify the Firebase ID token
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+        const { email, name, picture } = decodedToken;
+
+        if (!email) {
+            return res.status(400).json({ error: "Invalid token: email not found" });
+        }
+
+        // Check if the user exists in your database
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            // If user doesn't exist, reject or create a new account
+            return res.status(401).json({ error: "User does not exist. Please sign up first." });
+        }
+
+        // Generate your app's token (JWT) using MongoDB `_id`
+        const token = user.getJwtToken();
+
+        return res.status(200).json({
+            success: true,
+            user,
+            token,
+        });
+    } catch (error) {
+        console.error("Error verifying token:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
+
 // Get User Profile
 exports.getProfile = async (req, res, next) => {
     try {

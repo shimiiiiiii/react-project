@@ -26,8 +26,8 @@ import EditProfile from './Components/User/EditProfile';
 import Dashboard from './Components/Admin/Dashboard';
 
 // ADMIN DATATABLES
-// import VarietyDataTable from "./Components/Admin/VarietyDataTable";
-// import ProductDataTable from "./Components/Admin/ProductDataTable";
+import VarietyDataTable from "./Components/Admin/VarietyDataTable";
+import ProductDataTable from "./Components/Admin/ProductDataTable";
 
 // DETAILS
 import ProductDetails from './Components/UI/ProductModal';
@@ -39,6 +39,7 @@ function App() {
 
   return (
     <div className="App">
+    <ToastContainer />
       <Router>
           <Routes>
               <Route path="/" element={<Home/>} />
@@ -50,8 +51,8 @@ function App() {
               <Route path="/product/details" element={<ProductDetails />} />
               <Route path="/products/variety/:varietyId" element={<VarietyDetail />} />
               
-              {/* <Route path="/admin/products" element={<ProductDataTable />} />
-              <Route path="/admin/varieties" element={<VarietyDataTable />} /> */}
+              <Route path="/admin/products" element={<ProductDataTable />} />
+              <Route path="/admin/varieties" element={<VarietyDataTable />} />
 {/*     
               <Route path="/admin/product/new" element={<NewProduct />} />
               <Route path="/admin/product/:id" element={<EditProduct />} />

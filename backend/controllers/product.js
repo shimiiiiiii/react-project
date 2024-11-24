@@ -6,11 +6,10 @@ const Variety = require('../models/variety');
 // Get All Products
 exports.getProducts = async (req, res, next) => {
     try {
-        const resPerPage = 4;
+        const resPerPage = 4; 
         const productsCount = await Product.countDocuments();
         
-        const apiFeatures = new APIFeatures(Product.find(), req.query).search().filter();
-        apiFeatures.pagination(resPerPage);
+        const apiFeatures = new APIFeatures(Product.find(), req.query);
         
         const products = await apiFeatures.query;
 
@@ -24,7 +23,8 @@ exports.getProducts = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: 'Server Error'
+            message: 'Server Error',
+            error: error.message
         });
     }
 };
@@ -345,4 +345,28 @@ exports.VarietyDetail = async (req, res) => {
       });
     }
   };
-  
+
+  exports.bulkDelete = async (req, res) => {
+    try {
+        const { ids } = req.body;
+
+        if (!ids || !Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: 'Invalid request: No IDs provided' });
+        }
+
+        // Deleting multiple products
+        const result = await Product.deleteMany({ _id: { $in: ids } });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).json({ message: 'No products found to delete' });
+        }
+
+        return res.status(200).json({
+            message: `${result.deletedCount} product(s) deleted successfully`,
+            deletedCount: result.deletedCount,
+        });
+    } catch (error) {
+        console.error('Bulk delete error:', error);
+        return res.status(500).json({ message: 'An error occurred while deleting products' });
+    }
+};

@@ -5,6 +5,7 @@ export const authenticate = (data, next) => {
     if (window !== 'undefined') {
         // console.log('authenticate', response)
         sessionStorage.setItem('token', JSON.stringify(data.token));
+        sessionStorage.setItem('firebaseToken', JSON.stringify(data.firebaseToken));
         sessionStorage.setItem('user', JSON.stringify(data.user));
         
     }

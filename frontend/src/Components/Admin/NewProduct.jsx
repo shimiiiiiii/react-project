@@ -1,257 +1,275 @@
-import React, { Fragment, useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Meta from '../Layout/Meta'
-// import SideBar from './SideBar'
-import { getToken } from '../../utils/helpers'
-import axios from 'axios'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import React, { useState, useEffect } from 'react';
+import {
+  TextField,
+  Button,
+  Box,
+  CircularProgress,
+  Typography,
+  MenuItem,
+} from '@mui/material';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { getToken } from '../../utils/helpers';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
 
-const NewProduct = () => {
-    const [name, setName] = useState('')
-    const [price, setPrice] = useState(0)
-    const [description, setDescription] = useState('')
-    const [variety, setVariety] = useState('')
-    const [stock, setStock] = useState(0)
-    const [supplier, setSupplier] = useState('')
-    const [suppliers, setSuppliers] = useState([])
-    const [images, setImages] = useState([])
-    const [imagesPreview, setImagesPreview] = useState([])
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(false)
-    const [success, setSuccess] = useState('')
-    const [product, setProduct] = useState({})
+const NewProduct = ({ onClose, onSuccess }) => {
+  const [varietyList, setVarietyList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState([]);
+  const [imagesPreview, setImagesPreview] = useState([]);
 
-    const varieties = [
-        'Classic',
-        'Premium',
-        'Supreme',
-        'Munchkins',
-        'Other'
-    ]
-
-    let navigate = useNavigate()
-
-    useEffect(() => {
-        // fetch suppliers
-        const fetchSuppliers = async () => {
-            try {
-                const { data } = await axios.get(`http://localhost:4000/api/suppliers`, {
-                    headers: { Authorization: `Bearer ${getToken()}` }
-                })
-                setSuppliers(data.suppliers)
-            } catch (error) {
-                setError(error.response.data.message)
-            }
-        }
-
-        fetchSuppliers()
-    }, [])
-
-    const submitHandler = (e) => {
-        e.preventDefault()
-
-        const formData = new FormData()
-        formData.set('name', name)
-        formData.set('price', price)
-        formData.set('description', description)
-        formData.set('variety', variety)
-        formData.set('stock', stock)
-        formData.set('supplier', supplier)
-
-        images.forEach(image => {
-            formData.append('images', image)
-        })
-
-        newProduct(formData)
-    }
-
-    const onChange = e => {
-        const files = Array.from(e.target.files)
-        setImagesPreview([])
-        setImages([])
-
-        files.forEach(file => {
-            const reader = new FileReader()
-            reader.onload = () => {
-                if (reader.readyState === 2) {
-                    setImagesPreview(oldArray => [...oldArray, reader.result])
-                    setImages(oldArray => [...oldArray, reader.result])
-                }
-            }
-
-            reader.readAsDataURL(file)
-        })
-    }
-
-    // const newProduct = async (formData) => {
-    //     try {
-    //         const config = {
-    //             headers: {
-    //                 'Content-Type': 'multipart/form-data',
-    //                 'Authorization': `Bearer ${getToken()}`
-    //             }
-    //         }
-
-    //         const { data } = await axios.post(`http://localhost:4000/api/admin/product/new`, formData, config)
-    //         setLoading(false)
-    //         setSuccess(data.success)
-    //         setProduct(data.product)
-    //     } catch (error) {
-    //         setError(error.response.data.message)
-    //     }
-    // }
-    const newProduct = async (formData) => {
-        setLoading(true); 
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${getToken()}`
-                }
-            };
-    
-            const response = await axios.post(`http://localhost:4000/api/admin/product/new`, formData, config);
-            const { data } = response; // access data after successful
-            setLoading(false);
-            setSuccess(data.success);
-            setProduct(data.product);
-        } catch (error) {
-            console.error(error);
-            setLoading(false);
-            setError(error.response ? error.response.data.message : error.message);
-        }
+  useEffect(() => {
+    const fetchVarieties = async () => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        };
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API}/varieties`,
+          config
+        );
+        setVarietyList(data.varieties || []);
+      } catch (error) {
+        toast.error('Failed to fetch varieties');
+      }
     };
-    
+    fetchVarieties();
+  }, []);
 
-    useEffect(() => {
-        if (error) {
-            toast.error(error, {
-                position: 'bottom-right'
-            })
+  const onChangeImages = (e) => {
+    const files = Array.from(e.target.files);
+    setImagesPreview([]);
+    setImages([]);
+
+    files.forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.readyState === 2) {
+          setImagesPreview((oldArray) => [...oldArray, reader.result]);
+          setImages((oldArray) => [...oldArray, reader.result]);
         }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
 
-        if (success) {
-            toast.success('Product created successfully', {
-                position: 'bottom-right'
-            })
-            navigate('/admin/products')
-        }
-    }, [error, success])
+  const validationSchema = Yup.object({
+    name: Yup.string().required('Product name is required'),
+    price: Yup.number()
+      .required('Price is required')
+      .positive('Price must be positive'),
+    description: Yup.string().required('Description is required'),
+    variety: Yup.string().required('Variety is required'),
+    stock: Yup.number()
+      .required('Stock is required')
+      .integer('Stock must be a whole number')
+      .min(0, 'Stock cannot be negative'),
+  });
 
-    return (
-        <>
-            <Meta title={'New Product'} />
-            <div className="row">
-                <div className="col-12 col-md-2">
-                    {/* <SideBar /> */}
-                </div>
+  const handleSubmit = async (values, { setSubmitting }) => {
+    if (images.length === 0) {
+      toast.error('Please upload at least one image');
+      return;
+    }
 
-                <div className="col-12 col-md-10">
-                    <>
-                        <div className="wrapper my-5">
-                            <form className="shadow-lg" onSubmit={submitHandler} encType='multipart/form-data'>
-                                <h1 className="mb-4">New Product</h1>
+    const formData = new FormData();
+    formData.set('name', values.name);
+    formData.set('price', values.price);
+    formData.set('description', values.description);
+    formData.set('variety', values.variety);
+    formData.set('stock', values.stock);
 
-                                <div className="form-group">
-                                    <label htmlFor="name_field">Name</label>
-                                    <input
-                                        type="text"
-                                        id="name_field"
-                                        className="form-control"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                    />
-                                </div>
+    images.forEach((image) => formData.append('images', image));
 
-                                <div className="form-group">
-                                    <label htmlFor="price_field">Price</label>
-                                    <input
-                                        type="number"
-                                        id="price_field"
-                                        className="form-control"
-                                        value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                    />
-                                </div>
+    try {
+      setLoading(true);
 
-                                <div className="form-group">
-                                    <label htmlFor="description_field">Description</label>
-                                    <textarea
-                                        className="form-control"
-                                        id="description_field"
-                                        rows="8"
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                    ></textarea>
-                                </div>
+      const config = {
+        headers: {
+          Authorization: `Bearer ${getToken()}`,
+        },
+      };
 
-                                <div className="form-group">
-                                    <label htmlFor="variety_field">Variety</label>
-                                    <select className="form-control" id="variety_field" value={variety} onChange={(e) => setVariety(e.target.value)}>
-                                        {varieties.map(variety => (
-                                            <option key={variety} value={variety}>{variety}</option>
-                                        ))}
-                                    </select>
-                                </div>
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API}/admin/product/new`,
+        formData,
+        config
+      );
 
-                                <div className="form-group">
-                                    <label htmlFor="stock_field">Stock</label>
-                                    <input
-                                        type="number"
-                                        id="stock_field"
-                                        className="form-control"
-                                        value={stock}
-                                        onChange={(e) => setStock(e.target.value)}
-                                    />
-                                </div>
+      if (data.success) {
+        toast.success('Product created successfully!');
+        if (onSuccess) onSuccess(data.product);
+        if (onClose) onClose();
+      } else {
+        toast.error('Failed to create product');
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to create product');
+    } finally {
+      setLoading(false);
+      setSubmitting(false);
+    }
+  };
 
-                                <div className="form-group">
-                                    <label htmlFor="supplier_field">Supplier</label>
-                                    <select className="form-control" id="supplier_field" value={supplier} onChange={(e) => setSupplier(e.target.value)}>
-                                        <option value="">Select Supplier</option>
-                                        {suppliers.map(supplier => (
-                                            <option key={supplier._id} value={supplier._id}>{supplier.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
+  return (
+    <Box>
+      <Typography variant="h4" gutterBottom>
+        Add New Product
+      </Typography>
+      <Formik
+        initialValues={{
+          name: '',
+          price: '',
+          description: '',
+          variety: '',
+          stock: '',
+          images: [],
+        }}
+        validationSchema={validationSchema}
+        validate={(values) => {
+          const errors = {};
+          if (images.length === 0) {
+            errors.images = 'At least one image is required';
+          }
+          return errors;
+        }}
+        onSubmit={handleSubmit}
+      >
+        {({ values, errors, touched, handleChange, handleBlur, isSubmitting }) => (
+          <Form>
+            <Field
+              as={TextField}
+              label="Product Name"
+              name="name"
+              value={values.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.name && Boolean(errors.name)}
+              helperText={touched.name && errors.name}
+              fullWidth
+              margin="normal"
+              disabled={loading}
+            />
+            <Field
+              as={TextField}
+              label="Price"
+              name="price"
+              value={values.price}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.price && Boolean(errors.price)}
+              helperText={touched.price && errors.price}
+              fullWidth
+              margin="normal"
+              type="number"
+              disabled={loading}
+            />
+            <Field
+              as={TextField}
+              label="Description"
+              name="description"
+              value={values.description}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.description && Boolean(errors.description)}
+              helperText={touched.description && errors.description}
+              fullWidth
+              margin="normal"
+              multiline
+              rows={4}
+              disabled={loading}
+            />
+            <Field
+              as={TextField}
+              label="Variety"
+              name="variety"
+              select
+              value={values.variety}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.variety && Boolean(errors.variety)}
+              helperText={touched.variety && errors.variety}
+              fullWidth
+              margin="normal"
+              disabled={loading}
+            >
+              {varietyList.map((v) => (
+                <MenuItem key={v._id} value={v._id}>
+                  {v.name}
+                </MenuItem>
+              ))}
+            </Field>
+            <Field
+              as={TextField}
+              label="Stock"
+              name="stock"
+              value={values.stock}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              error={touched.stock && Boolean(errors.stock)}
+              helperText={touched.stock && errors.stock}
+              fullWidth
+              margin="normal"
+              type="number"
+              disabled={loading}
+            />
+            <Button
+              variant="contained"
+              component="label"
+              sx={{ marginTop: 2 }}
+              disabled={loading}
+            >
+            Upload Images
+            <input type="file" hidden onChange={(e) => {
+                    onChangeImages(e);
+                    if (errors.images) delete errors.images; // clear error if uploaded
+                }}
+                multiple 
+            />
+            </Button>
+            {errors.images && touched.images && (
+                <Typography color="error" variant="body2" sx={{ marginTop: 1 }}>
+                {errors.images}
+                </Typography>
+            )}
+            {imagesPreview.length > 0 && (
+              <Box mt={2}>
+                <Typography variant="subtitle1">Image Previews:</Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {imagesPreview.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt="Preview"
+                      style={{
+                        width: 70,
+                        height: 70,
+                        objectFit: 'cover',
+                        borderRadius: '4px',
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ marginTop: 3 }}
+              disabled={loading || isSubmitting}
+            >
+              {loading || isSubmitting ? <CircularProgress size={24} /> : 'Create Product'}
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </Box>
+  );
+};
 
-                                <div className="form-group">
-                                    <label>Images</label>
-                                    <div className="custom-file">
-                                        <input
-                                            type="file"
-                                            name="images"
-                                            className="custom-file-input"
-                                            id="customFile"
-                                            onChange={onChange}
-                                            multiple
-                                        />
-                                        <label className="custom-file-label" htmlFor="customFile">
-                                            Choose Images
-                                        </label>
-                                    </div>
-
-                                    {imagesPreview.map(img => (
-                                        <img src={img} key={img} alt="Images Preview" className="mt-3 mr-2" width="55" height="52" />
-                                    ))}
-                                </div>
-
-                                <button
-                                    id="submit_button"
-                                    type="submit"
-                                    className="btn btn-block py-3"
-                                    disabled={loading}
-                                >
-                                    CREATE
-                                </button>
-                            </form>
-                        </div>
-                    </>
-                </div>
-            </div>
-        </>
-    )
-}
-
-export default NewProduct
+export default NewProduct;

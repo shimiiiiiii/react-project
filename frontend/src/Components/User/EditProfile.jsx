@@ -5,10 +5,20 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getToken } from '../../utils/helpers';
+import {
+    Box,
+    Button,
+    CircularProgress,
+    Container,
+    TextField,
+    Typography,
+    Avatar,
+    IconButton,
+} from '@mui/material';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
 
 const EditProfile = () => {
     const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
     const [photo, setPhoto] = useState('');
     const [photoPreview, setPhotoPreview] = useState('/images/default_avatar.jpg');
     const [loading, setLoading] = useState(false);
@@ -21,9 +31,8 @@ const EditProfile = () => {
             }
         }
         try {
-            const { data } = await axios.get(`http://localhost:4000/api/profile`, config);
+            const { data } = await axios.get(`${import.meta.env.VITE_API}/profile`, config);
             setName(data.user.name);
-            setEmail(data.user.email);
             setPhotoPreview(data.user.photo?.url || '/images/default_avatar.jpg');
             setLoading(false);
         } catch (error) {
@@ -39,9 +48,9 @@ const EditProfile = () => {
             }
         }
         try {
-            const { data } = await axios.put(`http://localhost:4000/api/profile/update`, userData, config);
+            const { data } = await axios.put(`${import.meta.env.VITE_API}/profile/update`, userData, config);
             toast.success('Profile updated', { position: 'bottom-right' });
-            navigate('/me', { replace: true });
+            navigate('/profile', { replace: true });
         } catch (error) {
             toast.error('Error updating profile', { position: 'bottom-right' });
         }
@@ -55,7 +64,6 @@ const EditProfile = () => {
         e.preventDefault();
         const formData = new FormData();
         formData.set('name', name);
-        formData.set('email', email);
         formData.set('photo', photo);
         updateProfile(formData);
     };
@@ -74,59 +82,69 @@ const EditProfile = () => {
     return (
         <>
             <Meta title="Edit Profile" />
-            <div className="row wrapper">
-                <div className="col-10 col-lg-5">
-                    <form className="shadow-lg" onSubmit={submitHandler} encType="multipart/form-data">
-                        <h1 className="mt-2 mb-5">Edit Profile</h1>
+            <Container maxWidth="sm">
+                <Box
+                    component="form"
+                    onSubmit={submitHandler}
+                    sx={{
+                        backgroundColor: 'white',
+                        boxShadow: 3,
+                        padding: 4,
+                        borderRadius: 2,
+                        mt: 4,
+                    }}
+                    encType="multipart/form-data"
+                >
+                    <Typography variant="h4" gutterBottom>
+                        Edit Profile
+                    </Typography>
 
-                        <div className="form-group">
-                            <label htmlFor="name_field">Name</label>
+                    <TextField
+                        label="Name"
+                        variant="outlined"
+                        fullWidth
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        margin="normal"
+                    />
+
+                    <Box sx={{ textAlign: 'center', mb: 2 }}>
+                        <Avatar
+                            src={photoPreview}
+                            alt="Photo Preview"
+                            sx={{ width: 80, height: 80, mx: 'auto' }}
+                        />
+                        <label htmlFor="upload-photo">
                             <input
-                                type="text"
-                                id="name_field"
-                                className="form-control"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
+                                type="file"
+                                id="upload-photo"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                onChange={onChange}
                             />
-                        </div>
+                            <IconButton
+                                color="primary"
+                                aria-label="upload picture"
+                                component="span"
+                                sx={{ mt: 1 }}
+                            >
+                                <PhotoCamera />
+                            </IconButton>
+                        </label>
+                    </Box>
 
-                        <div className="form-group">
-                            <label htmlFor="email_field">Email</label>
-                            <input
-                                type="email"
-                                id="email_field"
-                                className="form-control"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label htmlFor="photo_upload">Photo</label>
-                            <div className="d-flex align-items-center">
-                                <figure className="avatar mr-3 item-rtl">
-                                    <img src={photoPreview} className="rounded-circle" alt="Photo Preview" />
-                                </figure>
-                                <input
-                                    type="file"
-                                    name="photo"
-                                    className="custom-file-input"
-                                    id="customFile"
-                                    accept="image/*"
-                                    onChange={onChange}
-                                />
-                                <label className="custom-file-label" htmlFor="customFile">
-                                    Choose Photo
-                                </label>
-                            </div>
-                        </div>
-
-                        <button type="submit" className="btn update-btn btn-block mt-4 mb-3" disabled={loading}>
-                            Update
-                        </button>
-                    </form>
-                </div>
-            </div>
+                    <Button
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        disabled={loading}
+                        sx={{ mt: 2 }}
+                    >
+                        {loading ? <CircularProgress size={24} /> : 'Update'}
+                    </Button>
+                </Box>
+            </Container>
         </>
     );
 };
